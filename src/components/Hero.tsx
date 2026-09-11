@@ -11,8 +11,10 @@ export default function Hero() {
       {/* La pieza 3D vive detrás de todo, grande y descentrada — se sale
           del viewport a propósito en vez de quedar encerrada en una
           columna simétrica. Rompe el molde "texto | gráfico". */}
-      <div className="pointer-events-none absolute -right-16 top-1/2 h-[380px] w-[380px] -translate-y-1/2 opacity-70 md:-right-10 md:h-[720px] md:w-[720px] md:opacity-100">
-        <HeroScene />
+      <div className="pointer-events-none absolute -right-6 top-1/2 h-[420px] w-[190px] -translate-y-1/2 opacity-90 md:right-10 md:h-[720px] md:w-[320px] md:opacity-100">
+        <div className="pointer-events-auto h-full w-full">
+          <HeroScene />
+        </div>
       </div>
 
       <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-16 md:pb-40 md:pt-24">
@@ -21,10 +23,13 @@ export default function Hero() {
         </p>
 
         <h1
-          className="mt-6 max-w-[18ch] font-display font-semibold leading-[0.98] text-expoia-navy md:max-w-[14ch]"
+          className="mt-6 max-w-[18ch] font-display leading-[0.98] md:max-w-[15ch]"
           style={{ fontSize: "clamp(2.75rem, 7vw + 0.5rem, 5.5rem)" }}
         >
-          Convierte tu próximo reto en una oportunidad rentable.
+          <span className="font-normal text-expoia-gray-dark">Convierte tu próximo reto en</span>{" "}
+          <span className="bg-gradient-to-r from-expoia-cyan to-expoia-magenta bg-clip-text font-semibold text-transparent">
+            una oportunidad rentable.
+          </span>
         </h1>
 
         <p className="mt-8 max-w-[38ch] text-lg text-expoia-gray-dark md:max-w-[30ch]">
