@@ -4,7 +4,11 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import LogosSection from "@/components/LogosSection";
+import PasosSection from "@/components/PasosSection";
 import Diagnostico from "@/components/Diagnostico";
+import SectoresSection from "@/components/SectoresSection";
+import AgendaSection from "@/components/AgendaSection";
+import FaqSection from "@/components/FaqSection";
 import RegistroForm from "@/components/RegistroForm";
 import Footer from "@/components/Footer";
 import { ResultadoTest } from "@/lib/testData";
@@ -17,7 +21,11 @@ export default function Home() {
       <Header />
       <Hero />
       <LogosSection />
+      <PasosSection />
       <Diagnostico onResultado={setResultadoTest} />
+      <SectoresSection />
+      <AgendaSection />
+      <FaqSection />
 
       <section id="registro" className="bg-white">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:py-28">

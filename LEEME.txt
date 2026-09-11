@@ -1,0 +1,55 @@
+INSTRUCCIONES DE INTEGRACIÓN — EXPOIA
+========================================
+
+1) Copiar archivos
+   Copien el contenido de este paquete DENTRO de su proyecto `expoia` ya
+   creado (reemplazando/agregando en `src/`, `public/`, y agregando la
+   carpeta `supabase/` y `.env.local.example` en la raíz).
+
+2) Instalar dependencias nuevas
+   npm install framer-motion @supabase/supabase-js
+
+3) Variables de entorno
+   Copien `.env.local.example` como `.env.local` y llenen:
+   - SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY: Project Settings > API
+     dentro de su proyecto de Supabase (org "ExpoIA").
+   - CORREO_NOTIFICACIONES y RESEND_API_KEY: pendientes hasta que
+     definan el correo oficial y creen la cuenta de Resend.
+
+4) Base de datos
+   Entren al SQL Editor de Supabase y ejecuten el contenido de
+   `supabase/schema.sql` para crear la tabla `registros_interes`.
+
+5) Correr localmente
+   npm run dev
+   Abran http://localhost:3000
+
+QUÉ QUEDA FUNCIONANDO YA
+-------------------------
+- Hero, logos institucionales, Test (5 preguntas, puntaje 100% local)
+  y formulario de Registro con validación real.
+- El formulario SÍ guarda de verdad en Supabase al enviar (tabla
+  registros_interes).
+
+QUÉ QUEDA PENDIENTE (marcado con comentarios TODO en el código)
+-----------------------------------------------------------------
+- Notificación por correo (Resend): falta el correo oficial de destino
+  y verificar un dominio propio para enviar desde él.
+- Guardado tipo "Excel": pausado hasta que la universidad confirme los
+  requisitos completos del registro oficial (Google Sheets en vivo vs.
+  archivo .xlsx descargable). Mientras tanto, la tabla de Supabase
+  cumple esa función de respaldo/consulta.
+- Tipografía de marca "Aptos"/"Aptos Display": usé un fallback del
+  sistema (Segoe UI / system-ui) porque no tengo los archivos de fuente.
+  Si consiguen los .woff2 con licencia para uso web, se agregan con
+  @font-face en globals.css y quedan aplicadas automáticamente.
+ACTUALIZACIÓN
+-------------
+- Se agregaron las secciones que faltaban del prototipo original:
+  Pasos ("De retos a resultados"), Sectores regionales, Agenda y FAQ —
+  con el mismo sistema visual de EXPOIA (nada de cards genéricas
+  idénticas ni plantilla SaaS).
+- El Hero ahora tiene movimiento real: el holograma sigue el puntero
+  (efecto de flotación 3D con parallax) y su núcleo magenta "respira"
+  con un brillo pulsante. Revisen esto en pantalla, no solo en código
+  — el efecto se aprecia mejor moviendo el mouse sobre la imagen.

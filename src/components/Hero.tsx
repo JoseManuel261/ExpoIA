@@ -1,6 +1,35 @@
+"use client";
+
 import Image from "next/image";
+import { useRef } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 export default function Hero() {
+  const contenedorRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [10, -10]), {
+    stiffness: 120,
+    damping: 14,
+  });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-10, 10]), {
+    stiffness: 120,
+    damping: 14,
+  });
+
+  function manejarMovimiento(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = contenedorRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  }
+
+  function resetear() {
+    x.set(0);
+    y.set(0);
+  }
+
   return (
     <section className="relative overflow-hidden border-b border-expoia-border">
       <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-20 md:grid-cols-[1.1fr_0.9fr] md:py-28">
@@ -32,11 +61,29 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* La forma orgánica se deja "viva" con una rotación lenta y continua:
-            es literalmente el elemento central del sistema visual de la marca,
-            así que el movimiento aquí tiene un propósito, no es decoración suelta. */}
-        <div className="relative mx-auto h-[380px] w-[260px] md:h-[520px] md:w-[360px]">
-          <div className="animate-[spin_40s_linear_infinite] motion-reduce:animate-none">
+        {/* El holograma responde al puntero como si flotara en el aire, y el
+            núcleo magenta "respira" con un brillo pulsante — el movimiento
+            está ligado a lo que la imagen ya representa (energía viva),
+            no es una animación decorativa genérica. */}
+        <div
+          ref={contenedorRef}
+          onMouseMove={manejarMovimiento}
+          onMouseLeave={resetear}
+          className="relative mx-auto h-[380px] w-[260px] [perspective:900px] md:h-[520px] md:w-[360px]"
+        >
+          <motion.div
+            aria-hidden
+            className="absolute left-1/2 top-[58%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-expoia-magenta/40 blur-3xl motion-reduce:hidden"
+            animate={{ opacity: [0.35, 0.7, 0.35], scale: [0.9, 1.15, 0.9] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          <motion.div
+            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+            animate={{ y: [0, -14, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="relative"
+          >
             <Image
               src="/hero-organic-hologram.png"
               alt=""
@@ -45,7 +92,7 @@ export default function Hero() {
               priority
               className="h-auto w-full drop-shadow-[0_30px_60px_rgba(18,38,54,0.25)]"
             />
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
