@@ -1,10 +1,16 @@
-import HeroField from "@/components/HeroField";
-import Image from "next/image";
+import dynamic from "next/dynamic";
+
+// Three.js necesita el navegador (WebGL), así que se carga solo en cliente.
+const HeroScene = dynamic(() => import("@/components/HeroScene"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full animate-pulse rounded-full bg-gradient-to-br from-expoia-cyan/20 to-expoia-magenta/20" />
+  ),
+});
 
 export default function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-expoia-border">
-      <HeroField />
       <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 md:grid-cols-[1.1fr_0.9fr] md:py-24">
         <div>
           <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
@@ -37,15 +43,8 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto h-[300px] w-[220px] md:h-[440px] md:w-[300px]">
-          <Image
-            src="/hero-organic-hologram.png"
-            alt=""
-            width={720}
-            height={1220}
-            priority
-            className="h-auto w-full drop-shadow-[0_30px_60px_rgba(18,38,54,0.25)]"
-          />
+        <div className="relative mx-auto h-[300px] w-[280px] md:h-[440px] md:w-[420px]">
+          <HeroScene />
         </div>
       </div>
     </section>
