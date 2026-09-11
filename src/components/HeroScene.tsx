@@ -1,75 +1,77 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { MeshDistortMaterial } from "@react-three/drei";
-import { useRef } from "react";
-import * as THREE from "three";
+import { Canvas } from "@react-three/fiber";
+import { Environment, Float, MeshTransmissionMaterial } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 
+// Réplica en 3D del logo de EXPOIA: dos formas cristalinas alargadas
+// (no esferas) con material de transmisión real (refracta y aberra el
+// color, como vidrio), más un núcleo emisivo blanco en la base — el
+// mismo destello central que tiene el arte original.
 function NucleoOrganico() {
-  const grupoRef = useRef<THREE.Group>(null);
-
-  // Suavizado real con lerp: la forma persigue al puntero con inercia,
-  // no salta a la posición exacta del mouse (eso es lo que se sentía
-  // mecánico en el intento anterior con CSS + spring).
-  useFrame((state) => {
-    if (!grupoRef.current) return;
-    const objetivoX = state.pointer.y * 0.3;
-    const objetivoZ = state.pointer.x * 0.35;
-
-    grupoRef.current.rotation.y += 0.0025;
-    grupoRef.current.rotation.x = THREE.MathUtils.lerp(
-      grupoRef.current.rotation.x,
-      objetivoX,
-      0.02
-    );
-    grupoRef.current.rotation.z = THREE.MathUtils.lerp(
-      grupoRef.current.rotation.z,
-      objetivoZ,
-      0.02
-    );
-  });
-
   return (
-    <group ref={grupoRef}>
-      <mesh scale={1.4}>
-        <icosahedronGeometry args={[1, 6]} />
-        <MeshDistortMaterial
-          color="#149fd3"
-          distort={0.45}
-          speed={1.6}
-          roughness={0.15}
-          metalness={0.3}
-          transparent
-          opacity={0.85}
-        />
-      </mesh>
-      <mesh scale={0.95} rotation={[0.6, 0.3, 0]}>
-        <icosahedronGeometry args={[1, 6]} />
-        <MeshDistortMaterial
-          color="#d314a7"
-          distort={0.6}
-          speed={2.1}
-          roughness={0.1}
-          metalness={0.2}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-      <pointLight position={[0, 0, 0]} intensity={4} color="#ffffff" distance={3} />
-    </group>
+    <>
+      <Float speed={1.3} rotationIntensity={0.5} floatIntensity={1.1}>
+        <group>
+          <mesh scale={[0.65, 1.55, 0.65]} position={[0, 0.35, 0]}>
+            <icosahedronGeometry args={[1, 10]} />
+            <MeshTransmissionMaterial
+              color="#149fd3"
+              thickness={1.3}
+              roughness={0.04}
+              transmission={1}
+              ior={1.3}
+              chromaticAberration={0.45}
+              distortion={0.35}
+              distortionScale={0.3}
+              temporalDistortion={0.15}
+            />
+          </mesh>
+          <mesh
+            scale={[0.5, 1.15, 0.5]}
+            position={[0.2, -0.05, 0.15]}
+            rotation={[0.25, 0.6, 0]}
+          >
+            <icosahedronGeometry args={[1, 10]} />
+            <MeshTransmissionMaterial
+              color="#d314a7"
+              thickness={1.1}
+              roughness={0.04}
+              transmission={1}
+              ior={1.4}
+              chromaticAberration={0.55}
+              distortion={0.45}
+              distortionScale={0.35}
+              temporalDistortion={0.2}
+            />
+          </mesh>
+          <mesh position={[0, -0.7, 0.25]} scale={0.16}>
+            <sphereGeometry args={[1, 32, 32]} />
+            <meshBasicMaterial color="#ffffff" toneMapped={false} />
+          </mesh>
+        </group>
+      </Float>
+
+      <pointLight position={[-2, 1, 2]} intensity={4} color="#149fd3" />
+      <pointLight position={[2, -1, 1.5]} intensity={4} color="#d314a7" />
+      <pointLight position={[0, -0.7, 1]} intensity={8} color="#ffffff" distance={2.2} />
+    </>
   );
 }
 
 export default function HeroScene() {
   return (
     <Canvas
-      camera={{ position: [0, 0, 4.2], fov: 42 }}
+      camera={{ position: [0, 0, 4.6], fov: 38 }}
       gl={{ antialias: true, alpha: true }}
       dpr={[1, 1.75]}
     >
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[2, 2, 3]} intensity={0.6} color="#ffffff" />
+      <ambientLight intensity={0.15} />
+      <Environment preset="city" />
       <NucleoOrganico />
+      <EffectComposer>
+        <Bloom mipmapBlur luminanceThreshold={0.25} intensity={0.9} />
+      </EffectComposer>
     </Canvas>
   );
 }

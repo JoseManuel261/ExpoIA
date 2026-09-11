@@ -1,50 +1,50 @@
 import dynamic from "next/dynamic";
 
-// Three.js necesita el navegador (WebGL), así que se carga solo en cliente.
 const HeroScene = dynamic(() => import("@/components/HeroScene"), {
   ssr: false,
-  loading: () => (
-    <div className="h-full w-full animate-pulse rounded-full bg-gradient-to-br from-expoia-cyan/20 to-expoia-magenta/20" />
-  ),
+  loading: () => null,
 });
 
 export default function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-expoia-border">
-      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-16 md:grid-cols-[1.1fr_0.9fr] md:py-24">
-        <div>
-          <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
-            EXPOIA · 2026 · INTERNACIONAL
-          </p>
-          <h1
-            className="mt-6 max-w-[16ch] font-display font-semibold leading-[1.05] text-expoia-navy"
-            style={{ fontSize: "clamp(2.25rem, 4.5vw + 1rem, 3.75rem)" }}
-          >
-            Convierte tu próximo reto en una oportunidad rentable.
-          </h1>
-          <p className="mt-6 max-w-[46ch] text-lg text-expoia-gray-dark">
-            En dos minutos descubre en qué punto está tu negocio frente a la
-            inteligencia artificial. Sin vueltas: responde y regístrate abajo
-            mismo.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="#test"
-              className="rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy"
-            >
-              Hacer el diagnóstico
-            </a>
-            <a
-              href="#registro"
-              className="rounded-full border border-expoia-navy/20 px-7 py-3.5 font-display text-sm font-semibold text-expoia-navy transition-colors hover:border-expoia-navy"
-            >
-              Registrar mi interés
-            </a>
-          </div>
-        </div>
+      {/* La pieza 3D vive detrás de todo, grande y descentrada — se sale
+          del viewport a propósito en vez de quedar encerrada en una
+          columna simétrica. Rompe el molde "texto | gráfico". */}
+      <div className="pointer-events-none absolute -right-16 top-1/2 h-[380px] w-[380px] -translate-y-1/2 opacity-70 md:-right-10 md:h-[720px] md:w-[720px] md:opacity-100">
+        <HeroScene />
+      </div>
 
-        <div className="relative mx-auto h-[300px] w-[280px] md:h-[440px] md:w-[420px]">
-          <HeroScene />
+      <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-16 md:pb-40 md:pt-24">
+        <p className="font-display text-sm tracking-[0.3em] text-expoia-cyan">
+          EXPOIA&nbsp;&nbsp;·&nbsp;&nbsp;2026&nbsp;&nbsp;·&nbsp;&nbsp;INTERNACIONAL
+        </p>
+
+        <h1
+          className="mt-6 max-w-[18ch] font-display font-semibold leading-[0.98] text-expoia-navy md:max-w-[14ch]"
+          style={{ fontSize: "clamp(2.75rem, 7vw + 0.5rem, 5.5rem)" }}
+        >
+          Convierte tu próximo reto en una oportunidad rentable.
+        </h1>
+
+        <p className="mt-8 max-w-[38ch] text-lg text-expoia-gray-dark md:max-w-[30ch]">
+          En dos minutos descubre en qué punto está tu negocio frente a la
+          inteligencia artificial.
+        </p>
+
+        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+          <a
+            href="#test"
+            className="rounded-full bg-expoia-magenta px-8 py-4 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy"
+          >
+            Hacer el diagnóstico
+          </a>
+          <a
+            href="#registro"
+            className="font-display text-sm font-semibold text-expoia-navy underline decoration-expoia-cyan decoration-2 underline-offset-4 transition-colors hover:text-expoia-cyan"
+          >
+            Registrar mi interés →
+          </a>
         </div>
       </div>
     </section>
