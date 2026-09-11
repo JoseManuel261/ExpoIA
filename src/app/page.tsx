@@ -3,13 +3,13 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import Diagnostico from "@/components/Diagnostico";
+import RegistroForm from "@/components/RegistroForm";
 import LogosSection from "@/components/LogosSection";
 import PasosSection from "@/components/PasosSection";
-import Diagnostico from "@/components/Diagnostico";
 import SectoresSection from "@/components/SectoresSection";
 import AgendaSection from "@/components/AgendaSection";
 import FaqSection from "@/components/FaqSection";
-import RegistroForm from "@/components/RegistroForm";
 import Footer from "@/components/Footer";
 import { ResultadoTest } from "@/lib/testData";
 
@@ -20,15 +20,13 @@ export default function Home() {
     <main>
       <Header />
       <Hero />
-      <LogosSection />
-      <PasosSection />
+
+      {/* Test y Registro: lo primero después del Hero, sin nada de relleno
+          institucional entre medio. Son el corazón de la página. */}
       <Diagnostico onResultado={setResultadoTest} />
-      <SectoresSection />
-      <AgendaSection />
-      <FaqSection />
 
       <section id="registro" className="bg-white">
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:py-28">
+        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:py-24">
           <div>
             <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
               REGISTRO DE INTERÉS
@@ -45,6 +43,15 @@ export default function Home() {
           <RegistroForm resultadoTest={resultadoTest} />
         </div>
       </section>
+
+      {/* Contenido de soporte / confianza, debajo de lo prioritario */}
+      <LogosSection />
+      <PasosSection />
+      <SectoresSection />
+      <div id="agenda">
+        <AgendaSection />
+      </div>
+      <FaqSection />
 
       <Footer />
     </main>

@@ -43,13 +43,27 @@ QUÉ QUEDA PENDIENTE (marcado con comentarios TODO en el código)
   sistema (Segoe UI / system-ui) porque no tengo los archivos de fuente.
   Si consiguen los .woff2 con licencia para uso web, se agregan con
   @font-face en globals.css y quedan aplicadas automáticamente.
-ACTUALIZACIÓN
--------------
-- Se agregaron las secciones que faltaban del prototipo original:
-  Pasos ("De retos a resultados"), Sectores regionales, Agenda y FAQ —
-  con el mismo sistema visual de EXPOIA (nada de cards genéricas
-  idénticas ni plantilla SaaS).
-- El Hero ahora tiene movimiento real: el holograma sigue el puntero
-  (efecto de flotación 3D con parallax) y su núcleo magenta "respira"
-  con un brillo pulsante. Revisen esto en pantalla, no solo en código
-  — el efecto se aprecia mejor moviendo el mouse sobre la imagen.
+ACTUALIZACIÓN v3 — cambios de fondo, no cosméticos
+----------------------------------------------------
+- Reordené la página: Test y Registro son AHORA lo primero después del
+  Hero, literalmente (antes de logos/pasos/sectores/agenda/faq, que
+  pasaron a ser contenido de soporte más abajo).
+- Cambié el movimiento del holograma: quité el "tilt" con el mouse
+  (se sentía mecánico) y lo reemplacé por un campo de luz orgánico
+  detrás de la imagen — 3 masas de color cian/magenta con trayectorias
+  independientes y mix-blend-mode, que nunca se repiten igual (archivo
+  nuevo: HeroField.tsx). Esto es lo que da la sensación de "vivo".
+- Tipografía fluida con clamp() en el titular del Hero, en vez de
+  saltos bruscos por breakpoint.
+- Header con menú móvil real (usa <details> nativo, accesible, sin
+  librería extra).
+- No hay dependencias nuevas — sigue usando solo framer-motion y
+  @supabase/supabase-js, ya instaladas.
+
+Sobre el punto de "todas las páginas hechas contigo se ven iguales":
+es un problema real de patrones por defecto (rounded-full, cards con
+sombra suave, layout apilado de secciones). Fui explícito rompiendo
+esos patrones donde pude en esta vuelta, pero si algo específico les
+sigue chirriando, díganme QUÉ puntualmente (un botón, una sección, un
+espaciado) y lo corrijo dirigido, en vez de reescribir todo de nuevo
+a ciegas.
