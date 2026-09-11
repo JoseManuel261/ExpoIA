@@ -1,0 +1,129 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PREGUNTAS, calcularResultado, Opcion, ResultadoTest } from "@/lib/testData";
+
+interface DiagnosticoProps {
+  onResultado?: (resultado: ResultadoTest) => void;
+}
+
+export default function Diagnostico({ onResultado }: DiagnosticoProps) {
+  const [paso, setPaso] = useState(0);
+  const [respuestas, setRespuestas] = useState<Record<string, Opcion>>({});
+  const [resultado, setResultado] = useState<ResultadoTest | null>(null);
+
+  const pregunta = PREGUNTAS[paso];
+  const esUltima = paso === PREGUNTAS.length - 1;
+
+  function elegir(opcion: Opcion) {
+    const nuevasRespuestas = { ...respuestas, [pregunta.id]: opcion };
+    setRespuestas(nuevasRespuestas);
+
+    if (esUltima) {
+      const res = calcularResultado(nuevasRespuestas);
+      setResultado(res);
+      onResultado?.(res);
+    } else {
+      setPaso((p) => p + 1);
+    }
+  }
+
+  function reiniciar() {
+    setPaso(0);
+    setRespuestas({});
+    setResultado(null);
+  }
+
+  return (
+    <section id="test" className="border-b border-expoia-border bg-expoia-navy">
+      <div className="mx-auto max-w-3xl px-6 py-20 text-white md:py-28">
+        <h2 className="font-display text-3xl font-semibold md:text-4xl">
+          ¿Qué tan lista está tu empresa para la IA?
+        </h2>
+        <p className="mt-3 text-white/70">
+          5 preguntas, sin vueltas. El resultado se calcula al instante con
+          tus respuestas — no depende de ningún análisis externo.
+        </p>
+
+        <div className="mt-10 rounded-2xl bg-white p-6 text-expoia-navy md:p-10">
+          <AnimatePresence mode="wait">
+            {!resultado ? (
+              <motion.div
+                key={pregunta.id}
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="mb-6 flex items-center gap-2">
+                  {PREGUNTAS.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 flex-1 rounded-full ${
+                        i <= paso ? "bg-expoia-magenta" : "bg-expoia-border"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className="mb-1 text-sm text-expoia-gray-mid">
+                  Pregunta {paso + 1} de {PREGUNTAS.length}
+                </p>
+                <h3 className="font-display text-xl font-semibold md:text-2xl">
+                  {pregunta.texto}
+                </h3>
+                <div className="mt-6 grid gap-3">
+                  {pregunta.opciones.map((opcion) => (
+                    <button
+                      key={opcion.texto}
+                      onClick={() => elegir(opcion)}
+                      className="rounded-xl border border-expoia-border px-5 py-4 text-left transition-colors hover:border-expoia-cyan hover:bg-expoia-bg"
+                    >
+                      {opcion.texto}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="resultado"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
+                  TU RESULTADO
+                </p>
+                <div className="mt-3 flex items-baseline gap-3">
+                  <span className="font-display text-5xl font-bold">
+                    {resultado.porcentaje}%
+                  </span>
+                  <span className="font-display text-xl font-semibold text-expoia-gray-dark">
+                    {resultado.etiqueta}
+                  </span>
+                </div>
+                <p className="mt-4 max-w-[55ch] text-expoia-gray-dark">
+                  {resultado.mensaje}
+                </p>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <a
+                    href="#registro"
+                    className="rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy"
+                  >
+                    Quiero registrarme con este resultado
+                  </a>
+                  <button
+                    onClick={reiniciar}
+                    className="rounded-full border border-expoia-border px-7 py-3.5 font-display text-sm font-semibold text-expoia-gray-dark transition-colors hover:border-expoia-navy"
+                  >
+                    Volver a hacerlo
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+}

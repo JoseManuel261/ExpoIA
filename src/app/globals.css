@@ -1,26 +1,54 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------
+   Tokens de marca EXPOIA 2026
+   Tomados del manual de lineamientos visuales.
+   Si consiguen las licencias/archivos de la tipografía "Aptos" y
+   "Aptos Display", agréguenlas con @font-face aquí y reemplacen
+   el fallback del bloque --font-* de abajo.
+----------------------------------------------------------------*/
+@theme {
+  --color-expoia-navy: #122636;
+  --color-expoia-cyan: #149fd3;
+  --color-expoia-magenta: #d314a7;
+  --color-expoia-gray-dark: #5f6b76;
+  --color-expoia-gray-mid: #7c8791;
+  --color-expoia-bg: #f4f6f8;
+  --color-expoia-border: #e0e5ea;
+
+  --font-display: "Aptos Display", "Segoe UI Semibold", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Aptos", "Segoe UI", system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-expoia-bg);
+  color: var(--color-expoia-navy);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Respeta a quienes prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Foco de teclado visible, en el cian de marca */
+:focus-visible {
+  outline: 2px solid var(--color-expoia-cyan);
+  outline-offset: 2px;
 }
