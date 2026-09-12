@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import HeroField from "@/components/HeroField";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 const HeroScene = dynamic(() => import("@/components/HeroScene"), {
@@ -22,78 +22,153 @@ interface ParticulaFlujo {
   pathY: number[];
 }
 
+// Ajusta estos tres valores a ojo hasta que el "empuje" se sienta bien.
+const RADIO_REPULSION = 70; // px — qué tan cerca debe estar el mouse para empezar a empujar
+const FUERZA_REPULSION = 100; // px — qué tanto se desplaza la partícula en el punto más cercano
+const RETORNO = 0.12; // 0-1 — qué tan rápido vuelve la partícula a su lugar al alejar el mouse
+
 const NubeDeFlujoDatos = () => {
   const [particulas, setParticulas] = useState<ParticulaFlujo[]>([]);
+
+  // Contenedor decorativo completo: usamos su bounding box para convertir
+  // la posición del mouse (coordenadas de pantalla) a las mismas coordenadas
+  // relativas que usan startX/startY de cada partícula.
+  const contenedorRef = useRef<HTMLDivElement>(null);
+
+  // Un <div> real por partícula, guardado aquí para poder mover su
+  // transform directamente en cada frame sin pasar por React/estado.
+  const dotsRef = useRef<Record<number, HTMLDivElement | null>>({});
+
+  // Posición actual del mouse relativa al contenedor. null = fuera / sin datos.
+  const mouseRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Offset actual (con inercia) de cada partícula, para que el retorno
+  // a la posición original sea suave y no un salto brusco.
+  const offsetsRef = useRef<Record<number, { x: number; y: number }>>({});
 
   useEffect(() => {
     const totalParticulas = 300;
     const generadas = Array.from({ length: totalParticulas }).map((_, i) => {
       const tipoRand = Math.random();
-      let startX = 0, startY = 0;
-      let pathX: number[] = [], pathY: number[] = [];
-      
+      let startX = 0,
+        startY = 0;
+      let pathX: number[] = [],
+        pathY: number[] = [];
+
       const colorHex = Math.random() > 0.4 ? "#6ee7ff" : "#d314a7";
-      const size = Math.random() * 3 + 1; 
+      const size = Math.random() * 3 + 1;
       const delay = Math.random() * 5;
       const duration = Math.random() * 2 + 2;
 
       const dispersionX = (Math.random() - 0.5) * 80;
       const dispersionY = (Math.random() - 0.5) * 80;
 
-      if (tipoRand < 0.20) {
-        startX = 120; startY = 480;
+      if (tipoRand < 0.2) {
+        startX = 120;
+        startY = 480;
         pathX = [0, -60 + dispersionX * 0.5, -130 + dispersionX, -210 + dispersionX * 1.2];
         pathY = [0, 10 + dispersionY * 0.5, 30 + dispersionY, 50 + dispersionY * 1.2];
-      } else if (tipoRand < 0.40) {
-        startX = 110; startY = 410;
+      } else if (tipoRand < 0.4) {
+        startX = 110;
+        startY = 410;
         pathX = [0, -50 + dispersionX * 0.4, -110 + dispersionX * 0.8, -190 + dispersionX];
         pathY = [0, -30 + dispersionY * 0.4, -70 + dispersionY * 0.8, -125 + dispersionY];
-      } else if (tipoRand < 0.60) {
-        startX = 170; startY = 240;
+      } else if (tipoRand < 0.6) {
+        startX = 170;
+        startY = 240;
         pathX = [0, 20 + dispersionX * 0.4, 50 + dispersionX * 0.8, 85 + dispersionX];
         pathY = [0, -40 + dispersionY * 0.4, -90 + dispersionY * 0.8, -150 + dispersionY];
-      } else if (tipoRand < 0.80) {
-        startX = 170; startY = 550;
+      } else if (tipoRand < 0.8) {
+        startX = 170;
+        startY = 550;
         pathX = [0, 60 + dispersionX * 0.4, 120 + dispersionX * 0.8, 180 + dispersionX];
         pathY = [0, 20 + dispersionY * 0.4, 45 + dispersionY * 0.8, 70 + dispersionY];
       } else {
-        startX = 160; startY = 80;
+        startX = 160;
+        startY = 80;
         pathX = [0, dispersionX * 0.8, dispersionX * 1.5, dispersionX * 2.0];
         pathY = [0, -20 + dispersionY * 0.5, -50 + dispersionY, -90 + dispersionY * 1.5];
       }
 
-      return {
-        id: i,
-        size,
-        colorHex,
-        delay,
-        duration,
-        startX,
-        startY,
-        pathX,
-        pathY,
-      };
+      return { id: i, size, colorHex, delay, duration, startX, startY, pathX, pathY };
     });
 
     setParticulas(generadas);
   }, []);
 
+  // Rastrea el mouse a nivel de ventana (así funciona sin importar qué capa
+  // esté encima) y corre un loop de animación aparte para la repulsión.
+  useEffect(() => {
+    function manejarMouseMove(e: MouseEvent) {
+      const rect = contenedorRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+    function manejarMouseLeaveVentana() {
+      mouseRef.current = null;
+    }
+
+    window.addEventListener("mousemove", manejarMouseMove);
+    window.addEventListener("mouseout", manejarMouseLeaveVentana);
+
+    let animId: number;
+    function loop() {
+      const contenedor = contenedorRef.current;
+      if (contenedor) {
+        for (const idStr in dotsRef.current) {
+          const id = Number(idStr);
+          const el = dotsRef.current[id];
+          if (!el) continue;
+
+          const p = particulas[id];
+          if (!p) continue;
+
+          let objetivoX = 0;
+          let objetivoY = 0;
+
+          if (mouseRef.current) {
+            const dx = p.startX - mouseRef.current.x;
+            const dy = p.startY - mouseRef.current.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < RADIO_REPULSION) {
+              const fuerza = (1 - dist / RADIO_REPULSION) * FUERZA_REPULSION;
+              const nx = dx / (dist || 0.0001);
+              const ny = dy / (dist || 0.0001);
+              objetivoX = nx * fuerza;
+              objetivoY = ny * fuerza;
+            }
+          }
+
+          const actual = offsetsRef.current[id] ?? { x: 0, y: 0 };
+          actual.x += (objetivoX - actual.x) * RETORNO;
+          actual.y += (objetivoY - actual.y) * RETORNO;
+          offsetsRef.current[id] = actual;
+
+          el.style.transform = `translate(${actual.x.toFixed(2)}px, ${actual.y.toFixed(2)}px)`;
+        }
+      }
+      animId = requestAnimationFrame(loop);
+    }
+    animId = requestAnimationFrame(loop);
+
+    return () => {
+      window.removeEventListener("mousemove", manejarMouseMove);
+      window.removeEventListener("mouseout", manejarMouseLeaveVentana);
+      cancelAnimationFrame(animId);
+    };
+  }, [particulas]);
+
   if (particulas.length === 0) return null;
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 overflow-visible">
+    <div ref={contenedorRef} className="pointer-events-none absolute inset-0 z-20 overflow-visible">
       {particulas.map((p) => (
+        // Div externo: SOLO controla la animación de flujo (Framer), intacta.
         <motion.div
           key={p.id}
-          className="absolute rounded-full"
-          style={{
-            width: p.size,
-            height: p.size,
-            backgroundColor: p.colorHex,
-            boxShadow: `0 0 8px ${p.colorHex}`,
-            left: p.startX,
-            top: p.startY,
-          }}
+          className="absolute"
+          style={{ left: p.startX, top: p.startY }}
           animate={{
             x: p.pathX,
             y: p.pathY,
@@ -106,7 +181,22 @@ const NubeDeFlujoDatos = () => {
             delay: p.delay,
             ease: "easeInOut",
           }}
-        />
+        >
+          {/* Div interno: SOLO controla la repulsión del mouse, vía transform
+              actualizado a mano en el loop de arriba (no pasa por React). */}
+          <div
+            ref={(el) => {
+              dotsRef.current[p.id] = el;
+            }}
+            className="rounded-full"
+            style={{
+              width: p.size,
+              height: p.size,
+              backgroundColor: p.colorHex,
+              boxShadow: `0 0 8px ${p.colorHex}`,
+            }}
+          />
+        </motion.div>
       ))}
     </div>
   );
@@ -118,7 +208,6 @@ export default function Hero() {
       <HeroField />
 
       <div className="pointer-events-none absolute -right-6 top-1/2 hidden h-[420px] w-[190px] -translate-y-1/2 opacity-90 sm:block md:right-[180px] md:h-[720px] md:w-[320px] md:opacity-100">
-        
         {/* Halos de luz ambiental */}
         <div className="absolute -left-16 top-1/3 h-56 w-56 rounded-full bg-[#6ee7ff] opacity-30 blur-3xl" />
         <div className="absolute right-0 bottom-10 h-64 w-64 rounded-full bg-[#d314a7] opacity-30 blur-3xl" />
@@ -127,7 +216,8 @@ export default function Hero() {
         <div
           className="pointer-events-none absolute left-1/2 top-[48%] rounded-full"
           style={{
-            width: "420px", height: "620px",
+            width: "420px",
+            height: "620px",
             border: "1px solid #0f8fd126",
             transform: "translate(-50%, -50%) rotate(-20deg)",
           }}
@@ -135,15 +225,16 @@ export default function Hero() {
         <div
           className="pointer-events-none absolute left-1/2 top-[48%] rounded-full"
           style={{
-            width: "420px", height: "620px",
+            width: "420px",
+            height: "620px",
             border: "1px solid #0f8fd126",
             transform: "translate(-50%, -50%) rotate(42deg)",
           }}
         />
 
         {/* CAPA SVG: Ramilletes de hilos ramificados */}
-        <svg 
-          className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" 
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
           viewBox="0 0 320 720"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -202,7 +293,7 @@ export default function Hero() {
       </div>
 
       {/* Contenido Principal */}
-      <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-16 md:pb-40 md:pt-24 z-30">
+      <div className="relative z-30 mx-auto max-w-7xl px-6 pb-24 pt-16 md:pb-40 md:pt-24">
         <p className="font-display text-sm tracking-[0.3em] text-expoia-cyan">
           EXPOIA&nbsp;&nbsp;·&nbsp;&nbsp;2026&nbsp;&nbsp;·&nbsp;&nbsp;INTERNACIONAL
         </p>
