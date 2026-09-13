@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import HeroField from "@/components/HeroField";
 import ParticleCanvas from "@/components/ParticleCanvas";
+import { useRef } from "react";
 
 const HeroScene = dynamic(() => import("@/components/HeroScene"), {
   ssr: false,
@@ -10,11 +11,19 @@ const HeroScene = dynamic(() => import("@/components/HeroScene"), {
 });
 
 export default function Hero() {
+  // Referencia a la cajita del logo: se la pasamos a ParticleCanvas para
+  // que sepa dónde "nacen" las partículas dentro del canvas, que ahora
+  // cubre toda la sección en vez de solo esta cajita pequeña.
+  const logoBoxRef = useRef<HTMLDivElement>(null);
+
   return (
     <section className="relative overflow-hidden border-b border-expoia-border">
       <HeroField />
 
-      <div className="pointer-events-none absolute -right-6 top-1/2 hidden h-[420px] w-[190px] -translate-y-1/2 opacity-90 sm:block md:right-[180px] md:h-[720px] md:w-[320px] md:opacity-100">
+      <div
+        ref={logoBoxRef}
+        className="pointer-events-none absolute -right-6 top-1/2 hidden h-[420px] w-[190px] -translate-y-1/2 opacity-90 sm:block md:right-[180px] md:h-[720px] md:w-[320px] md:opacity-100"
+      >
         {/* Halos de luz ambiental */}
         <div className="absolute -left-16 top-1/3 h-56 w-56 rounded-full bg-[#6ee7ff] opacity-30 blur-3xl" />
         <div className="absolute right-0 bottom-10 h-64 w-64 rounded-full bg-[#d314a7] opacity-30 blur-3xl" />
@@ -95,9 +104,12 @@ export default function Hero() {
         <div className="pointer-events-auto relative z-10 h-full w-full">
           <HeroScene />
         </div>
-
-        <ParticleCanvas />
       </div>
+
+      {/* Partículas: ahora viven a nivel de toda la sección, no solo de la
+          cajita del logo, así tienen mucho más espacio para alejarse antes
+          de toparse con el overflow-hidden de la sección. */}
+      <ParticleCanvas origenRef={logoBoxRef} />
 
       {/* Contenido Principal */}
       <div className="relative z-30 mx-auto max-w-7xl px-6 pb-24 pt-16 md:pb-40 md:pt-24">

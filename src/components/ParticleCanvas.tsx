@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, RefObject } from "react";
 
 interface Particula {
   size: number;
@@ -27,7 +27,7 @@ const TOTAL_PARTICULAS = 500;
 
 // Multiplica qué tan lejos llega el último punto del recorrido.
 // Súbelo más (2.2, 2.5...) si quieres que viajen aún más lejos.
-const ALCANCE = 10;
+const ALCANCE = 1.7;
 
 function generarParticulas(): Particula[] {
   return Array.from({ length: TOTAL_PARTICULAS }).map(() => {
@@ -105,11 +105,14 @@ function interpolarKeyframes(valores: number[], progreso: number) {
   return a + (b - a) * suavizado;
 }
 
-export default function ParticleCanvas() {
+export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HTMLDivElement | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particulasRef = useRef<Particula[]>([]);
   const offsetsRef = useRef<{ x: number; y: number }[]>([]);
   const mouseRef = useRef<{ x: number; y: number } | null>(null);
+  // Desplazamiento de la cajita del logo respecto al contenedor del canvas
+  // (ahora la sección completa). Se recalcula en cada resize.
+  const origenOffsetRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -131,11 +134,23 @@ export default function ParticleCanvas() {
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Recalcula dónde queda la cajita del logo dentro del contenedor
+      // grande, para que las partículas sigan naciendo ahí visualmente.
+      if (origenRef?.current) {
+        const rectOrigen = origenRef.current.getBoundingClientRect();
+        origenOffsetRef.current = {
+          x: rectOrigen.left - rect.left,
+          y: rectOrigen.top - rect.top,
+        };
+      }
     }
     ajustarTamano();
 
     const resizeObserver = new ResizeObserver(ajustarTamano);
     if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
+    if (origenRef?.current) resizeObserver.observe(origenRef.current);
+    window.addEventListener("resize", ajustarTamano);
 
     function manejarMouseMove(e: MouseEvent) {
       const rect = canvas?.parentElement?.getBoundingClientRect();
@@ -173,8 +188,8 @@ export default function ParticleCanvas() {
         const opacidad = interpolarKeyframes(p.opacity, progreso);
         const escala = interpolarKeyframes(p.scale, progreso);
 
-        const baseX = p.startX + dx;
-        const baseY = p.startY + dy;
+        const baseX = origenOffsetRef.current.x + p.startX + dx;
+        const baseY = origenOffsetRef.current.y + p.startY + dy;
 
         // Repulsión del mouse, con inercia (igual que la versión anterior con divs).
         let objetivoX = 0;
@@ -200,9 +215,22 @@ export default function ParticleCanvas() {
         const y = baseY + offset.y;
         const radio = Math.max((p.size * escala) / 2, 0);
 
-        if (opacidad <= 0.01 || radio <= 0) continue;
+        // Fade adicional por cercanía al borde visible: sin importar en qué
+        // punto de su recorrido esté la partícula, si se acerca al límite
+        // del canvas (el mismo límite que recorta la sección) se desvanece
+        // antes de cruzarlo, en vez de "cortarse" de golpe.
+        const MARGEN_BORDE = 60; // px — qué tan ancha es la franja de desvanecimiento
+        function factorBorde(coord: number, maximo: number) {
+          if (coord < MARGEN_BORDE) return Math.max(coord / MARGEN_BORDE, 0);
+          if (coord > maximo - MARGEN_BORDE) return Math.max((maximo - coord) / MARGEN_BORDE, 0);
+          return 1;
+        }
+        const fadeBorde = Math.min(factorBorde(x, rect.width), factorBorde(y, rect.height));
+        const opacidadFinal = opacidad * fadeBorde;
 
-        ctx.globalAlpha = opacidad;
+        if (opacidadFinal <= 0.01 || radio <= 0) continue;
+
+        ctx.globalAlpha = opacidadFinal;
         ctx.fillStyle = p.color;
         ctx.shadowColor = p.color;
         ctx.shadowBlur = 8;
@@ -219,6 +247,7 @@ export default function ParticleCanvas() {
     return () => {
       cancelAnimationFrame(animId);
       resizeObserver.disconnect();
+      window.removeEventListener("resize", ajustarTamano);
       window.removeEventListener("mousemove", manejarMouseMove);
       window.removeEventListener("mouseout", manejarMouseOut);
     };
