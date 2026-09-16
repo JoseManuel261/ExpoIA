@@ -35,20 +35,35 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em;
 }
 
-/* Respeta a quienes prefieren menos movimiento */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
 /* Foco de teclado visible, en el cian de marca */
 :focus-visible {
   outline: 2px solid var(--color-expoia-cyan);
   outline-offset: 2px;
+}
+
+/* Segmento brillante que se desliza sobre la línea de PasosSection,
+   rebotando de derecha a izquierda y de vuelta (animation-direction:
+   alternate en el componente). Sin fundido en los extremos: se queda
+   visible todo el recorrido, solo cambia de sentido.
+   --orbe-inicio / --orbe-fin (definidas inline en el componente) controlan
+   hasta dónde llega antes de devolverse. */
+@keyframes orbitaPasos {
+  0% {
+    left: var(--orbe-inicio, 93%);
+  }
+  100% {
+    left: var(--orbe-fin, 6%);
+  }
+}
+
+/* Color del segmento, sincronizada con orbitaPasos (misma duración/curva/
+   dirección): magenta del lado derecho de la línea, cian del lado
+   izquierdo — igual que el degradado de la línea base. */
+@keyframes orbitaColor {
+93% {
+    background-color: var(--color-expoia-magenta);
+  }
+  6% {
+    background-color: var(--color-expoia-cyan);
+  }
 }

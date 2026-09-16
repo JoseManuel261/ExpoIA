@@ -22,6 +22,22 @@ export default function PasosSection() {
             aria-hidden
             className="absolute top-4 hidden h-px w-full bg-gradient-to-r from-expoia-cyan via-expoia-cyan/40 to-expoia-magenta md:block"
           />
+
+          {/* Segmento de la línea que se ve más grueso, brillante y
+              borroso, deslizándose sobre la línea base — como una barra de
+              carga, no como una bolita aparte. Se anima por CSS puro
+              (@keyframes orbitaPasos en globals.css). */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-4 hidden h-[3px] w-40 -translate-x-1/2 -translate-y-1/2 rounded-full md:block"
+            style={{
+              animation: "orbitaPasos 4.5s ease-in-out infinite alternate",
+              background:
+                "linear-gradient(90deg, transparent, #6ee7ff, #ffffff, #d314a7, transparent)",
+              filter: "blur(2.5px)",
+            }}
+          />
+
           {PASOS.map((paso, i) => (
             <Reveal key={paso.titulo} delay={i * 0.1}>
               <div className="relative h-2.5 w-2.5 rounded-full bg-expoia-magenta md:mb-6" />
