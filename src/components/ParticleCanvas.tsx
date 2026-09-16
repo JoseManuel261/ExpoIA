@@ -18,16 +18,17 @@ interface Particula {
   scale: number[];
 }
 
-// Mismos parámetros de repulsión que ya habías ajustado.
 const RADIO_REPULSION = 70;
 const FUERZA_REPULSION = 26;
 const RETORNO = 0.12;
 
 const TOTAL_PARTICULAS = 500;
 
-// Multiplica qué tan lejos llega el último punto del recorrido.
 // Súbelo más (2.2, 2.5...) si quieres que viajen aún más lejos.
 const ALCANCE = 1.7;
+
+// Franja de desvanecimiento al borde del canvas, en px.
+const MARGEN_BORDE = 60;
 
 function generarParticulas(): Particula[] {
   return Array.from({ length: TOTAL_PARTICULAS }).map(() => {
@@ -105,6 +106,16 @@ function interpolarKeyframes(valores: number[], progreso: number) {
   return a + (b - a) * suavizado;
 }
 
+// Qué tan cerca está una coordenada del borde del canvas (0 = en el borde
+// o fuera, 1 = lejos del borde). Función pura a nivel de módulo: antes se
+// recreaba 500 veces por frame dentro del loop de dibujo, generando basura
+// innecesaria para el garbage collector.
+function factorBorde(coord: number, maximo: number) {
+  if (coord < MARGEN_BORDE) return Math.max(coord / MARGEN_BORDE, 0);
+  if (coord > maximo - MARGEN_BORDE) return Math.max((maximo - coord) / MARGEN_BORDE, 0);
+  return 1;
+}
+
 export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HTMLDivElement | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particulasRef = useRef<Particula[]>([]);
@@ -113,6 +124,11 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
   // Desplazamiento de la cajita del logo respecto al contenedor del canvas
   // (ahora la sección completa). Se recalcula en cada resize.
   const origenOffsetRef = useRef({ x: 0, y: 0 });
+  // Tamaño del contenedor cacheado: getBoundingClientRect() fuerza un
+  // reflow del layout cada vez que se llama. Antes se llamaba una vez por
+  // FRAME (60x/seg), lo cual ya era caro. Ahora solo se recalcula cuando
+  // de verdad cambia el tamaño (ajustarTamano).
+  const rectRef = useRef({ width: 0, height: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -125,15 +141,18 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
 
     // Ajusta el canvas al tamaño real del contenedor, respetando pantallas
     // de alta densidad (Retina) para que los círculos no se vean borrosos.
+    // El dpr se limita a 2: en pantallas 3x/4x no aporta nitidez visible
+    // para este tipo de gráfico y multiplica el costo de cada arc()/fill().
     function ajustarTamano() {
       if (!canvas) return;
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const rect = canvas.parentElement!.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+      rectRef.current = { width: rect.width, height: rect.height };
 
       // Recalcula dónde queda la cajita del logo dentro del contenedor
       // grande, para que las partículas sigan naciendo ahí visualmente.
@@ -152,6 +171,8 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
     if (origenRef?.current) resizeObserver.observe(origenRef.current);
     window.addEventListener("resize", ajustarTamano);
 
+    // Repulsión del mouse: siempre activa, sin importar la preferencia de
+    // "reducir movimiento" del sistema.
     function manejarMouseMove(e: MouseEvent) {
       const rect = canvas?.parentElement?.getBoundingClientRect();
       if (!rect) return;
@@ -166,11 +187,9 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
     let animId: number;
     const inicio = performance.now();
 
-    function dibujar(ahora: number) {
+    function dibujarFrame(tiempo: number) {
       if (!ctx || !canvas) return;
-      const tiempo = (ahora - inicio) / 1000; // segundos
-
-      const rect = canvas.parentElement!.getBoundingClientRect();
+      const rect = rectRef.current;
       ctx.clearRect(0, 0, rect.width, rect.height);
 
       const particulas = particulasRef.current;
@@ -219,12 +238,6 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
         // punto de su recorrido esté la partícula, si se acerca al límite
         // del canvas (el mismo límite que recorta la sección) se desvanece
         // antes de cruzarlo, en vez de "cortarse" de golpe.
-        const MARGEN_BORDE = 60; // px — qué tan ancha es la franja de desvanecimiento
-        function factorBorde(coord: number, maximo: number) {
-          if (coord < MARGEN_BORDE) return Math.max(coord / MARGEN_BORDE, 0);
-          if (coord > maximo - MARGEN_BORDE) return Math.max((maximo - coord) / MARGEN_BORDE, 0);
-          return 1;
-        }
         const fadeBorde = Math.min(factorBorde(x, rect.width), factorBorde(y, rect.height));
         const opacidadFinal = opacidad * fadeBorde;
 
@@ -240,18 +253,59 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
       }
 
       ctx.globalAlpha = 1;
-      animId = requestAnimationFrame(dibujar);
     }
-    animId = requestAnimationFrame(dibujar);
+
+    function loop(ahora: number) {
+      try {
+        dibujarFrame((ahora - inicio) / 1000);
+      } catch (err) {
+        // Si el dibujo lanza una excepción, antes el loop moría en silencio
+        // (nunca se volvía a pedir el siguiente frame) sin dejar rastro. Ahora
+        // se reporta en la consola del navegador para poder diagnosticarlo.
+        console.error("ParticleCanvas: error en el frame de animación", err);
+      }
+      animId = requestAnimationFrame(loop);
+    }
+
+    // --- Pausa cuando la sección no está a la vista ---
+    // En vez de dejar el requestAnimationFrame corriendo para siempre (aunque
+    // el usuario haya hecho scroll y ya no vea el hero), un IntersectionObserver
+    // detiene el loop por completo cuando la sección sale del viewport, y lo
+    // reinicia cuando vuelve a entrar. Así no se gasta CPU/batería dibujando
+    // 500 partículas que nadie está viendo.
+    let animando = false;
+
+    function iniciarAnimacion() {
+      if (animando) return;
+      animando = true;
+      animId = requestAnimationFrame(loop);
+    }
+    function detenerAnimacion() {
+      if (!animando) return;
+      animando = false;
+      cancelAnimationFrame(animId);
+    }
+
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) iniciarAnimacion();
+          else detenerAnimacion();
+        }
+      },
+      { threshold: 0 }
+    );
+    if (canvas.parentElement) intersectionObserver.observe(canvas.parentElement);
 
     return () => {
-      cancelAnimationFrame(animId);
+      detenerAnimacion();
+      intersectionObserver.disconnect();
       resizeObserver.disconnect();
       window.removeEventListener("resize", ajustarTamano);
       window.removeEventListener("mousemove", manejarMouseMove);
       window.removeEventListener("mouseout", manejarMouseOut);
     };
-  }, []);
+  }, [origenRef]);
 
   return (
     <canvas
