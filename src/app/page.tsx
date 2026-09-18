@@ -8,6 +8,7 @@ import RegistroForm from "@/components/RegistroForm";
 import LogosSection from "@/components/LogosSection";
 import PasosSection from "@/components/PasosSection";
 import SectoresSection from "@/components/SectoresSection";
+import SpeakersSection from "@/components/SpeakersSection";
 import AgendaSection from "@/components/AgendaSection";
 import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
@@ -48,10 +49,12 @@ export default function Home() {
       <LogosSection />
       <PasosSection />
       <SectoresSection />
+      <SpeakersSection />
       <div id="agenda">
         <AgendaSection />
       </div>
       <FaqSection />
+      <Diagnostico onResultado={setResultadoTest} />
 
       <Footer />
     </main>
