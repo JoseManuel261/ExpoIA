@@ -8,6 +8,51 @@ interface DiagnosticoProps {
   onResultado?: (resultado: ResultadoTest) => void;
 }
 
+// Anillo circular de progreso: se llena hasta el % del resultado, con un
+// degradado cian→magenta (los colores de marca) en vez de un color plano.
+// stroke-dashoffset animado con framer-motion (ya usado en el resto del
+// archivo) para que se vea "llenar" en vez de aparecer de golpe.
+function AnilloResultado({ porcentaje, etiqueta }: { porcentaje: number; etiqueta: string }) {
+  const radio = 80;
+  const circunferencia = 2 * Math.PI * radio;
+  const offsetFinal = circunferencia * (1 - Math.min(Math.max(porcentaje, 0), 100) / 100);
+
+  return (
+    <div className="relative h-52 w-52 shrink-0">
+      <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
+        <defs>
+          <linearGradient id="anilloResultadoGradiente" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#149fd3" />
+            <stop offset="100%" stopColor="#d314a7" />
+          </linearGradient>
+        </defs>
+        {/* Pista de fondo (el círculo completo, sin llenar) */}
+        <circle cx="100" cy="100" r={radio} fill="none" stroke="#e0e5ea" strokeWidth="14" />
+        {/* Progreso: arranca vacío y se anima hasta el % real */}
+        <motion.circle
+          cx="100"
+          cy="100"
+          r={radio}
+          fill="none"
+          stroke="url(#anilloResultadoGradiente)"
+          strokeWidth="14"
+          strokeLinecap="round"
+          strokeDasharray={circunferencia}
+          initial={{ strokeDashoffset: circunferencia }}
+          animate={{ strokeDashoffset: offsetFinal }}
+          transition={{ duration: 1.3, ease: "easeOut", delay: 0.2 }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+        <span className="font-display text-4xl font-bold text-expoia-navy">{porcentaje}%</span>
+        <span className="mt-1 text-xs font-medium uppercase tracking-wide text-expoia-gray-mid">
+          {etiqueta}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function Diagnostico({ onResultado }: DiagnosticoProps) {
   const [paso, setPaso] = useState(0);
   const [respuestas, setRespuestas] = useState<Record<string, Opcion>>({});
@@ -90,34 +135,31 @@ export default function Diagnostico({ onResultado }: DiagnosticoProps) {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
+                className="flex flex-col items-center gap-8 sm:flex-row sm:items-start"
               >
-                <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
-                  TU RESULTADO
-                </p>
-                <div className="mt-3 flex items-baseline gap-3">
-                  <span className="font-display text-5xl font-bold">
-                    {resultado.porcentaje}%
-                  </span>
-                  <span className="font-display text-xl font-semibold text-expoia-gray-dark">
-                    {resultado.etiqueta}
-                  </span>
-                </div>
-                <p className="mt-4 max-w-[55ch] text-expoia-gray-dark">
-                  {resultado.mensaje}
-                </p>
-                <div className="mt-8 flex flex-wrap gap-4">
-                  <a
-                    href="#registro"
-                    className="rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy"
-                  >
-                    Quiero registrarme con este resultado
-                  </a>
-                  <button
-                    onClick={reiniciar}
-                    className="rounded-full border border-expoia-border px-7 py-3.5 font-display text-sm font-semibold text-expoia-gray-dark transition-colors hover:border-expoia-navy"
-                  >
-                    Volver a hacerlo
-                  </button>
+                <AnilloResultado porcentaje={resultado.porcentaje} etiqueta={resultado.etiqueta} />
+
+                <div className="text-center sm:text-left">
+                  <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
+                    TU RESULTADO
+                  </p>
+                  <p className="mt-4 max-w-[55ch] text-expoia-gray-dark">
+                    {resultado.mensaje}
+                  </p>
+                  <div className="mt-8 flex flex-wrap justify-center gap-4 sm:justify-start">
+                    <a
+                      href="#registro"
+                      className="rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy"
+                    >
+                      Quiero registrarme con este resultado
+                    </a>
+                    <button
+                      onClick={reiniciar}
+                      className="rounded-full border border-expoia-border px-7 py-3.5 font-display text-sm font-semibold text-expoia-gray-dark transition-colors hover:border-expoia-navy"
+                    >
+                      Volver a hacerlo
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
