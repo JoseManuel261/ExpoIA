@@ -67,3 +67,16 @@ h1, h2, h3, h4 {
     background-color: var(--color-expoia-cyan);
   }
 }
+
+/* Degradado en movimiento para texto (ej. "Transforma." en AgendaSection):
+   el fondo es más ancho que el propio texto (background-size 200%) y se
+   desliza en loop cambiando background-position — así el color parece
+   fluir en vez de quedarse fijo. */
+@keyframes degradadoFlujo {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: -200% 50%;
+  }
+}
