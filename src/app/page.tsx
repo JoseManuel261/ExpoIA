@@ -12,10 +12,34 @@ import SpeakersSection from "@/components/SpeakersSection";
 import AgendaSection from "@/components/AgendaSection";
 import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
-import { ResultadoTest } from "@/lib/testData";
+import { PREGUNTAS, calcularResultado, Opcion, ResultadoTest } from "@/lib/testData";
 
 export default function Home() {
+  // Único dueño del progreso del test: las dos instancias de <Diagnostico />
+  // (arriba y cerca del final de la página) reciben este mismo estado por
+  // props, así que responder en cualquiera de las dos actualiza a ambas —
+  // no hay dos progresos ni dos resultados posibles.
+  const [paso, setPaso] = useState(0);
+  const [respuestas, setRespuestas] = useState<Record<string, Opcion>>({});
   const [resultadoTest, setResultadoTest] = useState<ResultadoTest | null>(null);
+
+  function elegirRespuesta(opcion: Opcion) {
+    const pregunta = PREGUNTAS[paso];
+    const nuevasRespuestas = { ...respuestas, [pregunta.id]: opcion };
+    setRespuestas(nuevasRespuestas);
+
+    if (paso === PREGUNTAS.length - 1) {
+      setResultadoTest(calcularResultado(nuevasRespuestas));
+    } else {
+      setPaso((p) => p + 1);
+    }
+  }
+
+  function reiniciarDiagnostico() {
+    setPaso(0);
+    setRespuestas({});
+    setResultadoTest(null);
+  }
 
   return (
     <main>
@@ -24,7 +48,12 @@ export default function Home() {
 
       {/* Test y Registro: lo primero después del Hero, sin nada de relleno
           institucional entre medio. Son el corazón de la página. */}
-      <Diagnostico onResultado={setResultadoTest} />
+      <Diagnostico
+        paso={paso}
+        resultado={resultadoTest}
+        onElegir={elegirRespuesta}
+        onReiniciar={reiniciarDiagnostico}
+      />
 
       <section id="registro" className="bg-white">
         <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:py-24">
@@ -54,7 +83,12 @@ export default function Home() {
         <AgendaSection />
       </div>
       <FaqSection />
-      <Diagnostico onResultado={setResultadoTest} />
+      <Diagnostico
+        paso={paso}
+        resultado={resultadoTest}
+        onElegir={elegirRespuesta}
+        onReiniciar={reiniciarDiagnostico}
+      />
 
       <Footer />
     </main>

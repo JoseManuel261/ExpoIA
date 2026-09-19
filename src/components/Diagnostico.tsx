@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PREGUNTAS, calcularResultado, Opcion, ResultadoTest } from "@/lib/testData";
+import { PREGUNTAS, Opcion, ResultadoTest } from "@/lib/testData";
 
 interface DiagnosticoProps {
-  onResultado?: (resultado: ResultadoTest) => void;
+  // El progreso/resultado ya NO vive dentro de este componente — lo dueña
+  // page.tsx y lo pasa por props. Así, aunque Diagnostico se renderice dos
+  // veces en la página (arriba y cerca del final), las dos instancias
+  // muestran exactamente el mismo estado en vez de cada una llevar su
+  // propio progreso por separado (que era el bug: respondías arriba y
+  // abajo seguía en cero, o terminabas con dos resultados distintos).
+  paso: number;
+  resultado: ResultadoTest | null;
+  onElegir: (opcion: Opcion) => void;
+  onReiniciar: () => void;
 }
 
 // Anillo circular de progreso: se llena hasta el % del resultado, con un
@@ -53,32 +61,8 @@ function AnilloResultado({ porcentaje, etiqueta }: { porcentaje: number; etiquet
   );
 }
 
-export default function Diagnostico({ onResultado }: DiagnosticoProps) {
-  const [paso, setPaso] = useState(0);
-  const [respuestas, setRespuestas] = useState<Record<string, Opcion>>({});
-  const [resultado, setResultado] = useState<ResultadoTest | null>(null);
-
+export default function Diagnostico({ paso, resultado, onElegir, onReiniciar }: DiagnosticoProps) {
   const pregunta = PREGUNTAS[paso];
-  const esUltima = paso === PREGUNTAS.length - 1;
-
-  function elegir(opcion: Opcion) {
-    const nuevasRespuestas = { ...respuestas, [pregunta.id]: opcion };
-    setRespuestas(nuevasRespuestas);
-
-    if (esUltima) {
-      const res = calcularResultado(nuevasRespuestas);
-      setResultado(res);
-      onResultado?.(res);
-    } else {
-      setPaso((p) => p + 1);
-    }
-  }
-
-  function reiniciar() {
-    setPaso(0);
-    setRespuestas({});
-    setResultado(null);
-  }
 
   return (
     <section id="test" className="border-b border-expoia-border bg-expoia-navy">
@@ -121,7 +105,7 @@ export default function Diagnostico({ onResultado }: DiagnosticoProps) {
                   {pregunta.opciones.map((opcion) => (
                     <button
                       key={opcion.texto}
-                      onClick={() => elegir(opcion)}
+                      onClick={() => onElegir(opcion)}
                       className="rounded-xl border border-expoia-border px-5 py-4 text-left transition-colors hover:border-expoia-cyan hover:bg-expoia-bg"
                     >
                       {opcion.texto}
@@ -154,7 +138,7 @@ export default function Diagnostico({ onResultado }: DiagnosticoProps) {
                       Quiero registrarme con este resultado
                     </a>
                     <button
-                      onClick={reiniciar}
+                      onClick={onReiniciar}
                       className="rounded-full border border-expoia-border px-7 py-3.5 font-display text-sm font-semibold text-expoia-gray-dark transition-colors hover:border-expoia-navy"
                     >
                       Volver a hacerlo
