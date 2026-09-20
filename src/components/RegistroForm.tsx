@@ -162,7 +162,7 @@ export default function RegistroForm({ resultadoTest }: RegistroFormProps) {
       <button
         type="submit"
         disabled={estado === "enviando"}
-        className="mt-2 rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy disabled:opacity-60"
+        className="mt-2 w-full rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy disabled:opacity-60 sm:w-auto"
       >
         {estado === "enviando" ? "Enviando..." : "Inscribirme"}
       </button>
