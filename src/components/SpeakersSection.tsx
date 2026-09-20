@@ -50,7 +50,7 @@ export const SPEAKERS: Speaker[] = [
 export default function SpeakersSection() {
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
+      <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20 md:py-24">
         <Reveal>
           <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">VOCES QUE CONECTAN EXPERIENCIA Y ACCIÓN</p>
           <h2 className="mt-3 max-w-[26ch] font-display text-3xl font-semibold text-expoia-navy md:text-4xl">
@@ -58,7 +58,7 @@ export default function SpeakersSection() {
           </h2>
         </Reveal>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-6 lg:grid-cols-4">
           {SPEAKERS.map((speaker, i) => (
             <Reveal key={speaker.nombre} delay={i * 0.08}>
               <SpeakerCard speaker={speaker} />
