@@ -51,7 +51,7 @@ const AGENDA: BloqueAgenda[] = [
 export default function AgendaSection() {
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
+      <div className="mx-auto max-w-6xl px-5 py-14 sm:px-6 sm:py-20 md:py-24">
         <div className="md:grid md:grid-cols-[1fr_1.5fr] md:gap-16">
           {/* --- Columna izquierda: título, se queda fija al hacer scroll en desktop --- */}
           <Reveal>
@@ -59,7 +59,7 @@ export default function AgendaSection() {
               <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
                 AGENDA PRELIMINAR · 17 NOV
               </p>
-              <h2 className="mt-4 font-display text-4xl font-semibold leading-[1.05] text-expoia-navy md:text-5xl">
+              <h2 className="mt-4 font-display text-3xl font-semibold leading-[1.05] text-expoia-navy sm:text-4xl md:text-5xl">
                 Conoce. Prueba.
                 <br />
                 Conecta. Negocia.
@@ -75,12 +75,12 @@ export default function AgendaSection() {
           </Reveal>
 
           {/* --- Columna derecha: lista de bloques de agenda --- */}
-          <div className="mt-14 divide-y divide-expoia-border md:mt-0">
+          <div className="mt-10 divide-y divide-expoia-border md:mt-0">
             {AGENDA.map((bloque, i) => (
               <Reveal key={bloque.hora} delay={i * 0.06}>
                 {/* "group" para que el hover sobre cualquier parte del
                     bloque controle el desplegado de la descripción */}
-                <div className="group flex cursor-default gap-6 py-7 first:pt-0">
+                <div className="group flex cursor-default gap-4 py-6 first:pt-0 sm:gap-6 sm:py-7">
                   <span className="w-16 shrink-0 pt-0.5 font-display text-sm font-semibold text-expoia-cyan">
                     {bloque.hora}
                   </span>
@@ -95,8 +95,8 @@ export default function AgendaSection() {
                         mouse encima (group-hover) y se recoge al salir.
                         overflow-hidden + max-height animado en vez de
                         display:none para que la transición se vea suave. */}
-                    <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-hover:grid-rows-[1fr]">
-                      <p className="overflow-hidden text-sm text-expoia-gray-dark opacity-0 transition-opacity duration-300 group-hover:mt-1.5 group-hover:opacity-100">
+                    <div className="grid grid-rows-[1fr] transition-[grid-template-rows] duration-300 ease-out md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr]">
+                      <p className="overflow-hidden text-sm text-expoia-gray-dark md:opacity-0 md:transition-opacity md:duration-300 md:group-hover:mt-1.5 md:group-hover:opacity-100">
                         {bloque.descripcion}
                       </p>
                     </div>
