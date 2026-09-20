@@ -124,6 +124,7 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
   // Desplazamiento de la cajita del logo respecto al contenedor del canvas
   // (ahora la sección completa). Se recalcula en cada resize.
   const origenOffsetRef = useRef({ x: 0, y: 0 });
+  const origenScaleRef = useRef({ x: 1, y: 1 });
   // Tamaño del contenedor cacheado: getBoundingClientRect() fuerza un
   // reflow del layout cada vez que se llama. Antes se llamaba una vez por
   // FRAME (60x/seg), lo cual ya era caro. Ahora solo se recalcula cuando
@@ -138,7 +139,6 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
 
     particulasRef.current = generarParticulas();
     offsetsRef.current = particulasRef.current.map(() => ({ x: 0, y: 0 }));
-
     // Ajusta el canvas al tamaño real del contenedor, respetando pantallas
     // de alta densidad (Retina) para que los círculos no se vean borrosos.
     // El dpr se limita a 2: en pantallas 3x/4x no aporta nitidez visible
@@ -162,6 +162,10 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
           x: rectOrigen.left - rect.left,
           y: rectOrigen.top - rect.top,
         };
+        origenScaleRef.current = {
+          x: rectOrigen.width / 320,
+          y: rectOrigen.height / 720,
+        };
       }
     }
     ajustarTamano();
@@ -181,8 +185,15 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
     function manejarMouseOut() {
       mouseRef.current = null;
     }
+    function manejarTouchMove(e: TouchEvent) {
+      const rect = canvas?.parentElement?.getBoundingClientRect();
+      const touch = e.touches[0];
+      if (!rect || !touch) return;
+      mouseRef.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    }
     window.addEventListener("mousemove", manejarMouseMove);
     window.addEventListener("mouseout", manejarMouseOut);
+    window.addEventListener("touchmove", manejarTouchMove, { passive: true });
 
     let animId: number;
     const inicio = performance.now();
@@ -207,8 +218,9 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
         const opacidad = interpolarKeyframes(p.opacity, progreso);
         const escala = interpolarKeyframes(p.scale, progreso);
 
-        const baseX = origenOffsetRef.current.x + p.startX + dx;
-        const baseY = origenOffsetRef.current.y + p.startY + dy;
+        const scale = origenScaleRef.current;
+        const baseX = origenOffsetRef.current.x + (p.startX + dx) * scale.x;
+        const baseY = origenOffsetRef.current.y + (p.startY + dy) * scale.y;
 
         // Repulsión del mouse, con inercia (igual que la versión anterior con divs).
         let objetivoX = 0;
@@ -304,6 +316,7 @@ export default function ParticleCanvas({ origenRef }: { origenRef?: RefObject<HT
       window.removeEventListener("resize", ajustarTamano);
       window.removeEventListener("mousemove", manejarMouseMove);
       window.removeEventListener("mouseout", manejarMouseOut);
+      window.removeEventListener("touchmove", manejarTouchMove);
     };
   }, [origenRef]);
 
