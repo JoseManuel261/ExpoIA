@@ -22,11 +22,11 @@ export default function Hero() {
 
       <div
         ref={logoBoxRef}
-        className="pointer-events-none absolute left-[calc(50%+70px)] top-[525px] z-10 h-[330px] w-[225px] -translate-x-1/2 -translate-y-1/2 opacity-90 sm:left-auto sm:right-[-24px] sm:top-1/2 sm:h-[420px] sm:w-[190px] sm:translate-x-0 md:right-[180px] md:h-[720px] md:w-[320px] md:opacity-100"
+        className="pointer-events-none absolute left-[calc(50%+70px)] top-131.25 z-10 h-82.5 w-56.25 -translate-x-1/2 -translate-y-1/2 opacity-90 sm:left-auto sm:-right-6 sm:top-1/2 sm:h-105 sm:w-47.5 sm:translate-x-0 md:right-45 md:h-180 md:w-80 md:opacity-100"
       >
         {/* Halos de luz ambiental */}
         <div className="absolute -left-16 top-1/3 h-56 w-56 rounded-full bg-[#6ee7ff] opacity-30 blur-3xl" />
-        <div className="absolute right-0 bottom-10 h-64 w-64 rounded-full bg-[#d314a7] opacity-30 blur-3xl" />
+        <div className="absolute right-0 bottom-10 h-64 w-64 rounded-full bg-expoia-magenta opacity-30 blur-3xl" />
 
         {/* Órbitas */}
         <div
@@ -95,7 +95,7 @@ export default function Hero() {
           <span className="h-1 w-1 rounded-full bg-expoia-magenta shadow-[0_0_8px_#d314a7] md:h-1.5 md:w-1.5" />
           <span className="font-display text-[8px] tracking-[0.14em] text-expoia-gray-dark md:text-xs md:tracking-[0.2em]">RENTABILIDAD</span>
         </div>
-        <div className="pointer-events-none absolute bottom-[-2%] left-1/2 flex -translate-x-1/2 items-center gap-1 md:bottom-auto md:left-auto md:right-[-27px] md:top-[86%] md:translate-x-0 md:gap-2">
+        <div className="pointer-events-none absolute bottom-[-2%] left-1/2 flex -translate-x-1/2 items-center gap-1 md:bottom-auto md:left-auto md:-right-6.75 md:top-[86%] md:translate-x-0 md:gap-2">
           <span className="h-1 w-1 rounded-full bg-expoia-magenta shadow-[0_0_8px_#d314a7] md:h-1.5 md:w-1.5" />
           <span className="font-display text-[8px] tracking-[0.14em] text-expoia-gray-dark md:text-xs md:tracking-[0.2em]">DECISIÓN</span>
         </div>
@@ -112,7 +112,7 @@ export default function Hero() {
       <ParticleCanvas origenRef={logoBoxRef} />
 
       {/* Contenido Principal */}
-      <div className="relative z-30 mx-auto max-w-7xl px-5 pb-[320px] pt-12 sm:px-6 sm:pb-24 sm:pt-16 md:pb-40 md:pt-24">
+      <div className="relative z-30 mx-auto max-w-7xl px-5 pb-80 pt-12 sm:px-6 sm:pb-24 sm:pt-16 md:pb-40 md:pt-24">
         <p className="font-display text-sm tracking-[0.3em] text-expoia-cyan">
           EXPOIA&nbsp;&nbsp;·&nbsp;&nbsp;2026&nbsp;&nbsp;·&nbsp;&nbsp;INTERNACIONAL
         </p>
@@ -121,7 +121,7 @@ export default function Hero() {
           style={{ fontSize: "clamp(2.2rem, 6.5vw + 0.5rem, 5.5rem)" }}
         >
           <span className="font-normal text-expoia-gray-dark">Convierte tu próximo reto en</span>{" "}
-          <span className="bg-gradient-to-r from-expoia-cyan to-expoia-magenta bg-clip-text font-semibold text-transparent">
+          <span className="bg-linear-to-r from-expoia-cyan to-expoia-magenta bg-clip-text font-semibold text-transparent">
             una oportunidad rentable.
           </span>
         </h1>
