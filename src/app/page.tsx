@@ -15,10 +15,8 @@ import Footer from "@/components/Footer";
 import { PREGUNTAS, calcularResultado, Opcion, ResultadoTest } from "@/lib/testData";
 
 export default function Home() {
-  // Único dueño del progreso del test: las dos instancias de <Diagnostico />
-  // (arriba y cerca del final de la página) reciben este mismo estado por
-  // props, así que responder en cualquiera de las dos actualiza a ambas —
-  // no hay dos progresos ni dos resultados posibles.
+  // Único dueño del progreso del test: la instancia principal de <Diagnostico />
+  // recibe este estado por props.
   const [paso, setPaso] = useState(0);
   const [respuestas, setRespuestas] = useState<Record<string, Opcion>>({});
   const [resultadoTest, setResultadoTest] = useState<ResultadoTest | null>(null);
@@ -56,7 +54,7 @@ export default function Home() {
       />
 
       <section id="registro" className="bg-white">
-        <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:py-24">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-6 sm:py-20 md:grid-cols-[0.9fr_1.1fr] md:gap-12 md:py-24">
           <div>
             <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
               REGISTRO DE INTERÉS
@@ -83,12 +81,22 @@ export default function Home() {
         <AgendaSection />
       </div>
       <FaqSection />
-      <Diagnostico
-        paso={paso}
-        resultado={resultadoTest}
-        onElegir={elegirRespuesta}
-        onReiniciar={reiniciarDiagnostico}
-      />
+      <section className="border-b border-expoia-border bg-expoia-bg">
+        <div className="mx-auto flex max-w-3xl flex-col items-center px-5 py-14 text-center sm:px-6 sm:py-20">
+          <p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">
+            ¿QUIERES VOLVER A EMPEZAR?
+          </p>
+          <h2 className="mt-3 font-display text-2xl font-semibold text-expoia-navy md:text-3xl">
+            Revisa de nuevo tu nivel de preparación para la IA.
+          </h2>
+          <a
+            href="#test"
+            className="mt-6 rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy"
+          >
+            Repetir el diagnóstico
+          </a>
+        </div>
+      </section>
 
       <Footer />
     </main>
