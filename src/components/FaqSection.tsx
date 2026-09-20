@@ -10,14 +10,14 @@ const PREGUNTAS_FRECUENTES = [
 export default function FaqSection() {
   return (
     <section className="border-b border-expoia-border bg-expoia-bg">
-      <div className="mx-auto max-w-3xl px-6 py-20 md:py-24">
+      <div className="mx-auto max-w-3xl px-5 py-14 sm:px-6 sm:py-20 md:py-24">
         <Reveal>
           <h2 className="font-display text-3xl font-semibold text-expoia-navy md:text-4xl">Preguntas frecuentes</h2>
         </Reveal>
         <div className="mt-8 divide-y divide-expoia-border border-y border-expoia-border">
           {PREGUNTAS_FRECUENTES.map((item, i) => (
             <Reveal key={item.pregunta} delay={i * 0.07}>
-              <details className="group py-5">
+              <details className="group py-4 sm:py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between font-display font-semibold text-expoia-navy">
                   {item.pregunta}
                   <span className="ml-4 text-expoia-cyan transition-transform group-open:rotate-45">+</span>
