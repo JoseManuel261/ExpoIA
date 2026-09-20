@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 const ANCHO = 1.5;
@@ -33,9 +33,10 @@ const FRAGMENT_SHADER = /* glsl */ `
 interface LogoProps {
   mousePos: React.MutableRefObject<THREE.Vector2>;
   isHovered: React.MutableRefObject<boolean>;
+  reduceMotion: boolean;
 }
 
-function LogoInteractivo({ mousePos, isHovered }: LogoProps) {
+function LogoInteractivo({ mousePos, isHovered, reduceMotion }: LogoProps) {
   const texture = useTexture("/hero-organic-hologram.png");
   texture.colorSpace = THREE.SRGBColorSpace;
 
@@ -59,6 +60,10 @@ function LogoInteractivo({ mousePos, isHovered }: LogoProps) {
     const matUniforms = materialRef.current.uniforms;
 
     matUniforms.uTime.value = state.clock.elapsedTime;
+    if (reduceMotion) {
+      matUniforms.uHover.value = 0;
+      return;
+    }
 
     // 1. Suavizado del mouse más lento y con inercia (0.06 en lugar de 0.15)
     const targetMouse = isHovered.current ? mousePos.current : new THREE.Vector2(0.5, 0.5);
@@ -95,6 +100,15 @@ function LogoInteractivo({ mousePos, isHovered }: LogoProps) {
 export default function HeroScene() {
   const mousePos = useRef(new THREE.Vector2(0.5, 0.5));
   const isHovered = useRef(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduceMotion(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -120,7 +134,7 @@ export default function HeroScene() {
         dpr={[1, 1.75]}
       >
         <Suspense fallback={null}>
-          <LogoInteractivo mousePos={mousePos} isHovered={isHovered} />
+          <LogoInteractivo mousePos={mousePos} isHovered={isHovered} reduceMotion={reduceMotion} />
         </Suspense>
       </Canvas>
     </div>
