@@ -65,7 +65,7 @@ export default function AgendaSection() {
                 Conecta. Negocia.
                 <br />
                 <span
-                  className="bg-gradient-to-r from-expoia-magenta via-expoia-cyan to-expoia-magenta bg-[length:200%_100%] bg-clip-text text-transparent"
+                  className="bg-linear-to-r from-expoia-magenta via-expoia-cyan to-expoia-magenta bg-size-[200%_100%] bg-clip-text text-transparent"
                   style={{ animation: "degradadoFlujo 4s linear infinite" }}
                 >
                   Transforma.
