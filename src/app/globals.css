@@ -56,6 +56,15 @@ h1, h2, h3, h4 {
   }
 }
 
+@keyframes orbitaPasosVertical {
+  0% {
+    top: 14%;
+  }
+  100% {
+    top: 86%;
+  }
+}
+
 /* Color del segmento, sincronizada con orbitaPasos (misma duración/curva/
    dirección): magenta del lado derecho de la línea, cian del lado
    izquierdo — igual que el degradado de la línea base. */
