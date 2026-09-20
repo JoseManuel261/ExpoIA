@@ -59,9 +59,9 @@ export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
 
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h3 className="font-display text-base font-semibold text-white">{speaker.nombre}</h3>
-            <p className="text-sm text-white/80">
+          <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+            <h3 className="font-display text-sm font-semibold text-white sm:text-base">{speaker.nombre}</h3>
+            <p className="text-xs text-white/80 sm:text-sm">
               {speaker.cargo} · {speaker.empresa}
             </p>
           </div>
