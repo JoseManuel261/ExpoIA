@@ -66,7 +66,7 @@ export default function Diagnostico({ paso, resultado, onElegir, onReiniciar }: 
 
   return (
     <section id="test" className="border-b border-expoia-border bg-expoia-navy">
-      <div className="mx-auto max-w-3xl px-6 py-20 text-white md:py-28">
+      <div className="mx-auto max-w-3xl px-5 py-14 text-white sm:px-6 sm:py-20 md:py-28">
         <h2 className="font-display text-3xl font-semibold md:text-4xl">
           ¿Qué tan lista está tu empresa para la IA?
         </h2>
@@ -75,7 +75,7 @@ export default function Diagnostico({ paso, resultado, onElegir, onReiniciar }: 
           tus respuestas — no depende de ningún análisis externo.
         </p>
 
-        <div className="mt-10 rounded-2xl bg-white p-6 text-expoia-navy md:p-10">
+        <div className="mt-8 rounded-2xl bg-white p-4 text-expoia-navy sm:mt-10 sm:p-6 md:p-10">
           <AnimatePresence mode="wait">
             {!resultado ? (
               <motion.div
@@ -119,7 +119,7 @@ export default function Diagnostico({ paso, resultado, onElegir, onReiniciar }: 
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col items-center gap-8 sm:flex-row sm:items-start"
+                className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-8"
               >
                 <AnilloResultado porcentaje={resultado.porcentaje} etiqueta={resultado.etiqueta} />
 
