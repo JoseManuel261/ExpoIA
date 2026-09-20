@@ -112,7 +112,7 @@ export default function Hero() {
       <ParticleCanvas origenRef={logoBoxRef} />
 
       {/* Contenido Principal */}
-      <div className="relative z-30 mx-auto max-w-7xl px-5 pb-80 pt-12 sm:px-6 sm:pb-24 sm:pt-16 md:pb-40 md:pt-24">
+      <div className="relative z-30 mx-auto max-w-7xl px-5 pb-72 pt-12 sm:px-6 sm:pb-24 sm:pt-16 md:pb-40 md:pt-24">
         <p className="font-display text-sm tracking-[0.3em] text-expoia-cyan">
           EXPOIA&nbsp;&nbsp;·&nbsp;&nbsp;2026&nbsp;&nbsp;·&nbsp;&nbsp;INTERNACIONAL
         </p>
@@ -129,7 +129,7 @@ export default function Hero() {
           En dos minutos descubre en qué punto está tu negocio frente a la
           inteligencia artificial.
         </p>
-        <div className="mt-8 flex flex-col items-start gap-4 sm:mt-10 sm:flex-row sm:items-center sm:gap-x-8">
+        <div className="mt-12 flex flex-col items-start gap-2 sm:mt-10 sm:flex-row sm:items-center sm:gap-x-8">
           <a
             href="#test"
             className="rounded-full bg-expoia-magenta px-8 py-4 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy"
@@ -138,7 +138,7 @@ export default function Hero() {
           </a>
           <a
             href="#registro"
-            className="font-display text-sm font-semibold text-expoia-navy underline decoration-expoia-cyan decoration-2 underline-offset-4 transition-colors hover:text-expoia-cyan"
+            className="ml-2 font-display text-sm font-semibold text-expoia-navy underline decoration-expoia-cyan decoration-2 underline-offset-4 transition-colors hover:text-expoia-cyan sm:ml-0"
           >
             Registrar mi interés →
           </a>
