@@ -38,7 +38,11 @@ interface LogoProps {
 
 function LogoInteractivo({ mousePos, isHovered, reduceMotion }: LogoProps) {
   const texture = useTexture("/hero-organic-hologram.png");
-  texture.colorSpace = THREE.SRGBColorSpace;
+  const configuredTexture = useMemo(() => {
+    const clonedTexture = texture.clone();
+    clonedTexture.colorSpace = THREE.SRGBColorSpace;
+    return clonedTexture;
+  }, [texture]);
 
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
@@ -47,12 +51,12 @@ function LogoInteractivo({ mousePos, isHovered, reduceMotion }: LogoProps) {
 
   const uniforms = useMemo(
     () => ({
-      uTexture: { value: texture },
+      uTexture: { value: configuredTexture },
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uTime: { value: 0 },
       uHover: { value: 0 },
     }),
-    [texture]
+    [configuredTexture]
   );
 
   useFrame((state) => {
