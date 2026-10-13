@@ -4,53 +4,49 @@ import { crearClienteSupabaseServidor } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   const datos = await request.json();
 
-  const { nombre, empresa, correo, telefono, principalReto, resultadoPorcentaje, resultadoEtiqueta } = datos;
+  const {
+    correo,
+    nombre,
+    telefono,
+    tipoVinculacion,
+    tipoVinculacionOtro,
+    pais,
+    paisOtro,
+    ciudad,
+    institucion,
+    programaOSector,
+    expectativas,
+    expectativasOtro,
+    autorizaDatos,
+  } = datos;
 
-  if (!nombre || !empresa || !correo || !telefono || !principalReto) {
-    return NextResponse.json(
-      { error: "Faltan campos obligatorios" },
-      { status: 400 }
-    );
+  if (!correo || !nombre || !telefono || !tipoVinculacion || !pais || !ciudad || !autorizaDatos) {
+    return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 });
   }
 
-  // 1) Guardado en Supabase (fuente de verdad / respaldo real).
-  //    Ejecuta antes el SQL de /supabase/schema.sql en el SQL Editor de su proyecto.
+  // Igual que /api/registro: guardado en Supabase como fuente de verdad.
+  // Ejecutar antes el SQL de /supabase/schema.sql (tabla registros_completos).
   const supabase = crearClienteSupabaseServidor();
-  const { error } = await supabase.from("registros_interes").insert({
-    nombre,
-    empresa,
+  const { error } = await supabase.from("registros_completos").insert({
     correo,
+    nombre,
     telefono,
-    principal_reto: principalReto,
-    resultado_porcentaje: resultadoPorcentaje,
-    resultado_etiqueta: resultadoEtiqueta,
+    tipo_vinculacion: tipoVinculacion,
+    tipo_vinculacion_otro: tipoVinculacionOtro || null,
+    pais,
+    pais_otro: paisOtro || null,
+    ciudad,
+    institucion: institucion || null,
+    programa_o_sector: programaOSector || null,
+    expectativas: Array.isArray(expectativas) ? expectativas : [],
+    expectativas_otro: expectativasOtro || null,
+    autoriza_datos: autorizaDatos,
   });
 
   if (error) {
-    console.error("Error guardando en Supabase:", error.message);
-    return NextResponse.json(
-      { error: "No se pudo guardar el registro" },
-      { status: 500 }
-    );
+    console.error("Error guardando registro completo en Supabase:", error.message);
+    return NextResponse.json({ error: "No se pudo guardar el registro" }, { status: 500 });
   }
-
-  // 2) Notificación por correo — PENDIENTE de conectar.
-  //    Cuando tengan cuenta de Resend y el dominio verificado, descomenten esto
-  //    e instalen la dependencia: npm install resend
-  //
-  // import { Resend } from "resend";
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // await resend.emails.send({
-  //   from: "EXPOIA <registro@SU-DOMINIO.co>",
-  //   to: process.env.CORREO_NOTIFICACIONES!, // el correo específico a definir
-  //   subject: `Nuevo registro de interés: ${empresa}`,
-  //   text: `Nombre: ${nombre}\nEmpresa: ${empresa}\nCorreo: ${correo}\nTeléfono: ${telefono}\nReto: ${principalReto}\nResultado del test: ${resultadoPorcentaje ?? "N/A"}% (${resultadoEtiqueta ?? "N/A"})`,
-  // });
-
-  // 3) Guardado tipo "excel" — PENDIENTE de definir método (Google Sheets en
-  //    vivo vs. .xlsx descargable), a la espera de los requisitos completos
-  //    del registro oficial. Por ahora, la tabla de Supabase ya cumple esa
-  //    función de respaldo consultable/exportable.
 
   return NextResponse.json({ ok: true });
 }

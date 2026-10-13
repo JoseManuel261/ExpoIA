@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { RUTAS, Ruta, ResultadoTest } from "@/lib/testData";
+import RegistroCompletoModal from "@/components/RegistroCompletoModal";
 
 interface RegistroFormProps {
   resultadoTest?: ResultadoTest | null;
@@ -65,107 +66,118 @@ export default function RegistroForm({ resultadoTest }: RegistroFormProps) {
   }
 
   return (
-    <form onSubmit={manejarEnvio} className="grid gap-5" noValidate>
-      {resultadoTest && (
-        <div className="rounded-xl border border-expoia-cyan/30 bg-expoia-cyan/5 px-4 py-3 text-sm text-expoia-navy">
-          Vienes de tu diagnóstico:{" "}
-          <strong>
-            {resultadoTest.porcentaje}% — {resultadoTest.etiqueta}
-          </strong>
-        </div>
-      )}
+    <>
+      <form onSubmit={manejarEnvio} className="grid gap-5" noValidate>
+        {resultadoTest && (
+          <div className="rounded-xl border border-expoia-cyan/30 bg-expoia-cyan/5 px-4 py-3 text-sm text-expoia-navy">
+            Vienes de tu diagnóstico:{" "}
+            <strong>
+              {resultadoTest.porcentaje}% — {resultadoTest.etiqueta}
+            </strong>
+          </div>
+        )}
 
-      <div>
-        <label htmlFor="nombre" className="mb-1.5 block text-sm font-medium text-expoia-navy">
-          Nombre completo
-        </label>
-        <input
-          id="nombre"
-          name="nombre"
-          type="text"
-          required
-          minLength={3}
-          placeholder="Tu nombre"
-          className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="empresa" className="mb-1.5 block text-sm font-medium text-expoia-navy">
-          Empresa
-        </label>
-        <input
-          id="empresa"
-          name="empresa"
-          type="text"
-          required
-          placeholder="Nombre de la empresa"
-          className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
-        />
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="correo" className="mb-1.5 block text-sm font-medium text-expoia-navy">
-            Correo
+          <label htmlFor="nombre" className="mb-1.5 block text-sm font-medium text-expoia-navy">
+            Nombre completo
           </label>
           <input
-            id="correo"
-            name="correo"
-            type="email"
+            id="nombre"
+            name="nombre"
+            type="text"
             required
-            placeholder="nombre@empresa.com"
+            minLength={3}
+            placeholder="Tu nombre"
             className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
           />
         </div>
+
         <div>
-          <label htmlFor="telefono" className="mb-1.5 block text-sm font-medium text-expoia-navy">
-            Teléfono
+          <label htmlFor="empresa" className="mb-1.5 block text-sm font-medium text-expoia-navy">
+            Empresa
           </label>
           <input
-            id="telefono"
-            name="telefono"
-            type="tel"
+            id="empresa"
+            name="empresa"
+            type="text"
             required
-            placeholder="300 000 0000"
+            placeholder="Nombre de la empresa"
             className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
           />
         </div>
-      </div>
 
-      <div>
-        <label htmlFor="principalReto" className="mb-1.5 block text-sm font-medium text-expoia-navy">
-          Principal reto
-        </label>
-        <select
-          id="principalReto"
-          name="principalReto"
-          required
-          defaultValue={resultadoTest?.ruta ?? ""}
-          className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
-        >
-          <option value="" disabled>
-            Selecciona una opción
-          </option>
-          {Object.entries(RUTAS).map(([valor, etiqueta]) => (
-            <option key={valor} value={valor}>
-              {etiqueta}
+        <div className="grid gap-5 md:grid-cols-2">
+          <div>
+            <label htmlFor="correo" className="mb-1.5 block text-sm font-medium text-expoia-navy">
+              Correo
+            </label>
+            <input
+              id="correo"
+              name="correo"
+              type="email"
+              required
+              placeholder="nombre@empresa.com"
+              className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
+            />
+          </div>
+          <div>
+            <label htmlFor="telefono" className="mb-1.5 block text-sm font-medium text-expoia-navy">
+              Teléfono
+            </label>
+            <input
+              id="telefono"
+              name="telefono"
+              type="tel"
+              required
+              placeholder="300 000 0000"
+              className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="principalReto" className="mb-1.5 block text-sm font-medium text-expoia-navy">
+            Principal reto
+          </label>
+          <select
+            id="principalReto"
+            name="principalReto"
+            required
+            defaultValue={resultadoTest?.ruta ?? ""}
+            className="w-full rounded-lg border border-expoia-border bg-white px-4 py-3 text-expoia-navy outline-none focus:border-expoia-cyan"
+          >
+            <option value="" disabled>
+              Selecciona una opción
             </option>
-          ))}
-        </select>
+            {Object.entries(RUTAS).map(([valor, etiqueta]) => (
+              <option key={valor} value={valor}>
+                {etiqueta}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {estado === "error" && (
+          <p className="text-sm text-expoia-magenta">{errorMsg}</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={estado === "enviando"}
+          className="mt-2 w-full rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy disabled:opacity-60 sm:w-auto"
+        >
+          {estado === "enviando" ? "Enviando..." : "Inscribirme"}
+        </button>
+      </form>
+
+      {/* "Otros": abre el modal con las 10 preguntas del formulario
+          oficial completo (PDF de inscripción), para quien quiera dar
+          más detalle que este registro de interés rápido. Va AFUERA del
+          <form> de arriba a propósito — el modal tiene su propio <form>
+          interno, y HTML no permite un <form> anidado dentro de otro. */}
+      <div className="-mt-2">
+        <RegistroCompletoModal />
       </div>
-
-      {estado === "error" && (
-        <p className="text-sm text-expoia-magenta">{errorMsg}</p>
-      )}
-
-      <button
-        type="submit"
-        disabled={estado === "enviando"}
-        className="mt-2 w-full rounded-full bg-expoia-magenta px-7 py-3.5 font-display text-sm font-semibold text-white transition-colors hover:bg-expoia-navy disabled:opacity-60 sm:w-auto"
-      >
-        {estado === "enviando" ? "Enviando..." : "Inscribirme"}
-      </button>
-    </form>
+    </>
   );
 }
