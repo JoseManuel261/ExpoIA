@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+const cuestionarioUrl = process.env.NEXT_PUBLIC_CUESTIONARIO_URL || "/cuestionario-empresas-huila";
+
 export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-expoia-border bg-expoia-bg/90 backdrop-blur">
@@ -8,6 +10,7 @@ export default function Header() {
           <a href="#test" className="hover:text-expoia-cyan">Diagnóstico</a>
           <a href="#registro" className="hover:text-expoia-cyan">Registro</a>
           <a href="#agenda" className="hover:text-expoia-cyan">Agenda</a>
+          <a href={cuestionarioUrl} className="hover:text-expoia-cyan">Cuestionario Empresas Huila</a>
         </nav>
 
         <Image
@@ -37,6 +40,7 @@ export default function Header() {
             <a href="#test" className="hover:text-expoia-cyan">Diagnóstico</a>
             <a href="#registro" className="hover:text-expoia-cyan">Registro</a>
             <a href="#agenda" className="hover:text-expoia-cyan">Agenda</a>
+            <a href={cuestionarioUrl} className="hover:text-expoia-cyan">Cuestionario Empresas Huila</a>
           </nav>
         </div>
       </div>

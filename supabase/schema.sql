@@ -40,3 +40,17 @@ create table if not exists registros_completos (
 );
 
 alter table registros_completos enable row level security;
+
+-- Respuestas del cuestionario de adopción de IA en empresas del Huila.
+-- Las respuestas se conservan como JSON para no perder la estructura de
+-- matrices ni bloquear futuras versiones del instrumento.
+create table if not exists cuestionarios_empresas_huila (
+  id uuid primary key default gen_random_uuid(),
+  respuestas jsonb not null,
+  autoriza_contacto boolean not null default false,
+  autoriza_proveedores boolean not null default false,
+  acepta_politica boolean not null,
+  created_at timestamptz not null default now()
+);
+
+alter table cuestionarios_empresas_huila enable row level security;
