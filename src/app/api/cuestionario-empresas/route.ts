@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
   const supabase = crearClienteSupabaseServidor();
   const { error } = await supabase.from("cuestionarios_empresas_huila").insert({
     respuestas: datos.respuestas,
-    autoriza_contacto: datos.autorizaContacto === "Sí, autorizo",
-    autoriza_proveedores: datos.autorizaProveedores === "Sí, autorizo",
+    autoriza_contacto: datos.respuestas.autorizaContacto === "Sí, autorizo",
+    autoriza_proveedores: datos.respuestas.autorizaProveedores === "Sí, autorizo",
     acepta_politica: true,
   });
 

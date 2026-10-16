@@ -4,6 +4,31 @@ import { crearClienteSupabaseServidor } from "@/lib/supabase";
 export async function POST(request: NextRequest) {
   const datos = await request.json();
 
+  if (datos?.principalReto) {
+    if (!datos.nombre || !datos.empresa || !datos.correo || !datos.telefono || !datos.autorizaDatos) {
+      return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 });
+    }
+
+    const supabase = crearClienteSupabaseServidor();
+    const { error } = await supabase.from("registros_interes").insert({
+      nombre: datos.nombre,
+      empresa: datos.empresa,
+      correo: datos.correo,
+      telefono: datos.telefono,
+      principal_reto: datos.principalReto,
+      resultado_porcentaje: datos.resultadoPorcentaje,
+      resultado_etiqueta: datos.resultadoEtiqueta,
+      autoriza_datos: datos.autorizaDatos,
+    });
+
+    if (error) {
+      console.error("Error guardando registro de interés en Supabase:", error.message);
+      return NextResponse.json({ error: "No se pudo guardar el registro" }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
+  }
+
   const {
     correo,
     nombre,

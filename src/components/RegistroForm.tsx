@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { RUTAS, Ruta, ResultadoTest } from "@/lib/testData";
 import RegistroCompletoModal from "@/components/RegistroCompletoModal";
+import AutorizacionDatos from "@/components/AutorizacionDatos";
 
 interface RegistroFormProps {
   resultadoTest?: ResultadoTest | null;
@@ -13,6 +14,7 @@ type Estado = "idle" | "enviando" | "exito" | "error";
 export default function RegistroForm({ resultadoTest }: RegistroFormProps) {
   const [estado, setEstado] = useState<Estado>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [autorizaDatos, setAutorizaDatos] = useState(false);
 
   async function manejarEnvio(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,6 +30,7 @@ export default function RegistroForm({ resultadoTest }: RegistroFormProps) {
       principalReto: (form.elements.namedItem("principalReto") as HTMLSelectElement).value as Ruta,
       resultadoPorcentaje: resultadoTest?.porcentaje ?? null,
       resultadoEtiqueta: resultadoTest?.etiqueta ?? null,
+      autorizaDatos,
     };
 
     try {
@@ -43,6 +46,7 @@ export default function RegistroForm({ resultadoTest }: RegistroFormProps) {
 
       setEstado("exito");
       form.reset();
+      setAutorizaDatos(false);
     } catch {
       setEstado("error");
       setErrorMsg(
@@ -76,6 +80,8 @@ export default function RegistroForm({ resultadoTest }: RegistroFormProps) {
             </strong>
           </div>
         )}
+
+        <AutorizacionDatos checked={autorizaDatos} onChange={setAutorizaDatos} />
 
         <div>
           <label htmlFor="nombre" className="mb-1.5 block text-sm font-medium text-expoia-navy">

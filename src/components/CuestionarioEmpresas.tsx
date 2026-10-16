@@ -16,18 +16,20 @@ const limitaciones = ["Falta de conocimiento", "No saber dónde aplicarla", "Fal
 const preguntas: Pregunta[] = [
   { id: "empresa", numero: "1", texto: "Nombre o razón social de la empresa o establecimiento", tipo: "text" },
   { id: "identificacion", numero: "2", texto: "NIT sin dígito de verificación, o número de matrícula mercantil", tipo: "text" },
-  { id: "informal", numero: "3", texto: "La empresa aún no está formalizada y no tiene NIT ni matrícula", tipo: "select", opciones: ["Sí", "No"] },
   { id: "municipio", numero: "4", texto: "Municipio en el que se encuentra ubicada la sede principal", tipo: "select", opciones: municipios },
   { id: "zona", numero: "5", texto: "¿La sede está ubicada en cabecera municipal o zona rural?", tipo: "select", opciones: ["Cabecera municipal", "Centro poblado o zona rural"] },
   { id: "presencia", numero: "6", texto: "¿En qué otros municipios tiene presencia la empresa?", tipo: "multi", opciones: [...municipios, "Otros departamentos de Colombia", "Presencia internacional", "No tiene presencia en otros municipios"] },
   { id: "sector", numero: "7", texto: "Sector económico principal", tipo: "select", opciones: sectores },
+  { id: "otroSector", numero: "7.1", texto: "Otro sector económico, ¿cuál?", tipo: "text", filtro: r => r.sector === "Otro" },
   { id: "actividad", numero: "8", texto: "Actividad, producto o servicio principal", tipo: "text" },
   { id: "tamano", numero: "9", texto: "¿Cuántas personas trabajan actualmente en la empresa?", tipo: "select", opciones: ["Micro: hasta 10", "Pequeña: 11 a 50", "Mediana: 51 a 200", "Grande: más de 200"] },
   { id: "antiguedad", numero: "10", texto: "¿En qué rango inició operaciones la empresa?", tipo: "select", opciones: ["Menos de 1 año", "Entre 1 y 3 años", "Entre 4 y 7 años", "Entre 8 y 15 años", "Más de 15 años"] },
   { id: "organizacion", numero: "11", texto: "Forma de organización de la empresa", tipo: "select", opciones: ["Persona natural", "SAS", "Otra persona jurídica", "Organización asociativa, cooperativa o solidaria", "Emprendimiento no formalizado", "Otra"] },
+  { id: "otraOrganizacion", numero: "11.1", texto: "Otra forma de organización, ¿cuál?", tipo: "text", filtro: r => r.organizacion === "Otra" },
   { id: "genero", numero: "12", texto: "¿La persona propietaria o gerente es hombre o mujer?", tipo: "select", opciones: ["Hombre", "Mujer", "Otro", "Prefiere no responder"] },
   { id: "ventas", numero: "13", texto: "¿La empresa vende fuera del departamento o exporta?", tipo: "select", opciones: ["Solo en el Huila", "También en otros departamentos", "Exporta"] },
   { id: "cargo", numero: "14", texto: "Cargo de la persona que diligencia la encuesta", tipo: "select", opciones: ["Propietario o gerente", "Administrador", "Responsable de tecnología", "Responsable de mercadeo o ventas", "Responsable de producción", "Trabajador o colaborador", "Otro"] },
+  { id: "otroCargo", numero: "14.1", texto: "Otro cargo, ¿cuál?", tipo: "text", filtro: r => r.cargo === "Otro" },
   { id: "ingresos", numero: "15", texto: "Ingresos operacionales del último año cerrado, en millones de pesos", tipo: "select", opciones: ["Menos de 30", "30 a 120", "121 a 500", "501 a 1.500", "Más de 1.500", "Prefiero no responder", "No sabe"] },
   { id: "recursos", numero: "16", texto: "Indique si la empresa utiliza actualmente cada recurso", tipo: "matrix", filas: ["Computador", "Teléfono inteligente empresarial", "Internet permanente", "Página web", "Redes sociales empresariales", "Comercio electrónico", "Software contable", "Facturación electrónica", "CRM", "Almacenamiento en la nube", "Software de inventarios", "Sistemas de análisis de datos"], opciones: siNo },
   { id: "organizacionInfo", numero: "17", texto: "¿Cómo califica la organización y disponibilidad de la información?", tipo: "select", opciones: ["Principalmente física", "Archivos digitales dispersos", "Digitalizada y parcialmente organizada", "Organizada en sistemas", "Integrada para análisis y decisiones"] },
@@ -39,35 +41,42 @@ const preguntas: Pregunta[] = [
   { id: "origenUso", numero: "23", texto: "¿Cómo se originó ese uso?", tipo: "select", opciones: ["Iniciativa de trabajadores sin decisión empresarial", "Iniciativa conocida y permitida", "Decisión sin lineamientos formales", "Decisión con lineamientos definidos"], filtro: r => r.usaIA === "Sí" },
   { id: "tiempoIA", numero: "24", texto: "¿Desde hace cuánto utiliza herramientas de IA?", tipo: "select", opciones: ["Menos de 3 meses", "3 a 6 meses", "7 a 12 meses", "1 a 2 años", "Más de 2 años"], filtro: r => r.usaIA === "Sí" },
   { id: "productosIA", numero: "25", texto: "¿Cuáles productos utiliza la empresa?", tipo: "multi", opciones: ["ChatGPT", "Gemini", "Microsoft Copilot", "Claude", "Perplexity u otro buscador", "Código abierto", "Otro", "No identifica la herramienta"], filtro: r => r.usaIA === "Sí" },
+  { id: "otroProductoIA", numero: "25.1", texto: "Otro producto de inteligencia artificial, ¿cuál?", tipo: "text", filtro: r => r.usaIA === "Sí" && Array.isArray(r.productosIA) && r.productosIA.includes("Otro") },
   { id: "capacidadesIA", numero: "26", texto: "¿Para cuáles capacidades usa IA?", tipo: "multi", opciones: ["Textos", "Imágenes o video", "Traducir", "Chatbot", "Automatizar", "Pronósticos", "Voz", "Imágenes", "Recomendaciones", "Agentes autónomos", "Funciones integradas en software"], filtro: r => r.usaIA === "Sí" },
   { id: "accesoIA", numero: "27", texto: "¿Cómo accede a estas soluciones?", tipo: "multi", opciones: ["Versiones gratuitas", "Suscripciones empresariales", "Cuentas personales", "Incluidas en otros programas", "Proveedor", "Desarrolladas o adaptadas", "No sabe"], filtro: r => r.usaIA === "Sí" },
   { id: "procesosIA", numero: "28", texto: "¿En qué procesos utiliza hoy alguna herramienta de IA?", tipo: "matrix", filas: procesos, opciones: siNo, filtro: r => r.usaIA === "Sí" },
   { id: "actividadesIA", numero: "29", texto: "¿Para qué actividades concretas se utiliza?", tipo: "multi", opciones: ["Textos y correos", "Redes sociales", "Imágenes y videos", "Clientes", "Traducir", "Analizar documentos", "Analizar datos", "Cotizaciones", "Tareas repetitivas", "Pronósticos", "Diseñar", "Decisiones", "Programar", "Otra"], filtro: r => r.usaIA === "Sí" },
+  { id: "otraActividadIA", numero: "29.1", texto: "Otra actividad, ¿cuál?", tipo: "text", filtro: r => r.usaIA === "Sí" && Array.isArray(r.actividadesIA) && r.actividadesIA.includes("Otra") },
   { id: "frecuenciaIA", numero: "30", texto: "¿Con qué frecuencia se utiliza la IA?", tipo: "select", opciones: ["Una o dos veces", "Ocasionalmente", "Varias veces al mes", "Varias veces a la semana", "Todos los días"], filtro: r => r.usaIA === "Sí" },
   { id: "automatica", numero: "31", texto: "¿Alguna herramienta funciona automáticamente?", tipo: "select", opciones: siNo, filtro: r => r.usaIA === "Sí" },
-  { id: "personasIA", numero: "32", texto: "¿Cuántas personas usan IA en su trabajo?", tipo: "select", opciones: ["Una", "2 a 3", "4 a 10", "Más de 10", "La mayoría", "No sabe"], filtro: r => r.usaIA === "Sí" },
+  { id: "personasIA", numero: "32", texto: "¿Cuántas personas de su equipo de trabajo utilizan IA para realizar tareas laborales?", tipo: "select", opciones: ["Ninguna", "1 persona", "De 2 a 3 personas", "De 4 a 10 personas", "De 11 a 25 personas", "De 26 a 50 personas", "Más de 50 personas", "No sabe"], filtro: r => r.usaIA === "Sí" },
   { id: "orientacionesIA", numero: "33", texto: "¿La empresa ha establecido orientaciones para el uso de IA?", tipo: "select", opciones: ["No existen", "Recomendaciones informales", "Procedimientos en diseño", "Políticas documentadas", "Controles sobre datos y resultados"], filtro: r => r.usaIA === "Sí" },
   { id: "beneficiosActuales", numero: "34", texto: "¿Qué beneficios ha obtenido o espera obtener mediante IA?", tipo: "matrix", filas: beneficios, opciones: ["Sí", "No", "Es pronto"], filtro: r => r.usaIA === "Sí" },
-  { id: "beneficiosFuturos", numero: "35", texto: "¿Qué beneficios espera obtener en los próximos doce meses?", tipo: "matrix", filas: beneficios, opciones: siNo, filtro: r => r.usaIA === "Sí" },
+  { id: "beneficiosFuturos", numero: "35", texto: "¿Cuáles de estos beneficios esperaría obtener con inteligencia artificial en los próximos doce meses?", tipo: "matrix", filas: beneficios, opciones: siNo, filtro: r => r.usaIA === "Sí" },
   { id: "resultados", numero: "36", texto: "¿Cómo califica los resultados obtenidos?", tipo: "select", opciones: ["Muy bajos", "Bajos", "Moderados", "Buenos", "Muy buenos", "No se han medido", "No sabe"], filtro: r => r.usaIA === "Sí" },
-  { id: "indicadores", numero: "37", texto: "¿La empresa mide el impacto mediante indicadores?", tipo: "select", opciones: ["No lo mide", "Apreciaciones", "Ocasionalmente", "Indicadores básicos", "Indicadores periódicos"], filtro: r => r.usaIA === "Sí" },
-  { id: "limitaciones", numero: "38", texto: "¿Qué tanto limita cada situación el uso de IA?", tipo: "matrix", filas: limitaciones, opciones: ["0 No limita", "1 Poco", "2 Bastante", "3 Principal", "NS" ] },
+  { id: "detalleResultados", numero: "36.1", texto: "Detalle los resultados obtenidos con el uso de la inteligencia artificial", tipo: "text", filtro: r => r.usaIA === "Sí" && r.resultados !== "No se han medido" },
+  { id: "indicadores", numero: "37", texto: "¿La empresa mide el impacto del uso de IA mediante indicadores?", tipo: "select", opciones: ["No lo mide", "Apreciaciones", "Ocasionalmente", "Indicadores básicos", "Indicadores periódicos"], filtro: r => r.usaIA === "Sí" },
+  { id: "limitaciones", numero: "38", texto: "Para cada situación, indique qué tanto limita hoy a su empresa para usar o ampliar el uso de inteligencia artificial", tipo: "matrix", filas: limitaciones, opciones: ["0 No limita", "1 Poco", "2 Bastante", "3 Principal", "NS" ] },
+  { id: "otraLimitacion", numero: "38.1", texto: "Otra situación que limita el uso de inteligencia artificial, ¿cuál?", tipo: "text", filtro: r => Array.isArray(r.limitaciones) && r.limitaciones.some(item => item.startsWith("Otra:")) },
   { id: "utilidadIA", numero: "39", texto: "¿La inteligencia artificial es necesaria o útil para una empresa como la suya?", tipo: "select", opciones: ["Sí, claramente", "Tal vez", "No lo creo necesario", "No sabe"] },
-  { id: "preocupaciones", numero: "40", texto: "Indique su nivel de preocupación frente a cada situación", tipo: "matrix", filas: ["Información confidencial", "Datos personales", "Errores", "Dependencia", "Uso no autorizado", "Propiedad intelectual", "Puestos de trabajo", "Discriminación", "No tiene preocupaciones", "Otra"], opciones: ["0 Nada", "1 Poco", "2 Bastante", "3 Mucho", "NS"] },
-  { id: "revisionIA", numero: "41", texto: "¿Con qué frecuencia revisa la información producida por IA?", tipo: "select", opciones: ["Nunca", "Algunas veces", "Generalmente", "Siempre"], filtro: r => r.usaIA === "Sí" },
+  { id: "preocupaciones", numero: "40", texto: "¿Qué tanto le preocupan las siguientes situaciones relacionadas con el uso de inteligencia artificial (IA) en su empresa?", tipo: "matrix", filas: ["Información confidencial", "Datos personales", "Errores", "Dependencia", "Uso no autorizado", "Propiedad intelectual", "Puestos de trabajo", "Discriminación", "No tiene preocupaciones", "Otra"], opciones: ["0 Nada", "1 Poco", "2 Bastante", "3 Mucho", "NS"] },
+  { id: "otraPreocupacion", numero: "40.1", texto: "Otra situación que le preocupa, ¿cuál?", tipo: "text", filtro: r => Array.isArray(r.preocupaciones) && r.preocupaciones.some(item => item.startsWith("Otra:")) },
+  { id: "revisionIA", numero: "41", texto: "¿Con qué frecuencia se revisa la información producida por herramientas de IA antes de utilizarla?", tipo: "select", opciones: ["Nunca", "Algunas veces", "Generalmente", "Siempre"], filtro: r => r.usaIA === "Sí" },
   { id: "criteriosRevision", numero: "42", texto: "¿Existen criterios definidos para esa revisión?", tipo: "select", opciones: ["Sí, documentados", "Sí, informales", "No existen", "No sabe"], filtro: r => r.usaIA === "Sí" },
   { id: "procesosFuturos", numero: "43", texto: "¿Le gustaría implementar o fortalecer IA en estos procesos?", tipo: "matrix", filas: procesos, opciones: siNo },
-  { id: "tresProcesos", numero: "44", texto: "¿Cuáles son los tres procesos más importantes?", tipo: "multi", opciones: procesos },
+  { id: "tresProcesos", numero: "44", texto: "De los procesos que marcó en la pregunta anterior, ¿cuáles son los tres más importantes para su empresa?", tipo: "multi", opciones: procesos },
   { id: "problema", numero: "45", texto: "¿En cuál proceso está el principal problema que quisiera resolver?", tipo: "text" },
   { id: "apoyo", numero: "46", texto: "¿Qué tipo de apoyo necesita la empresa?", tipo: "multi", opciones: ["Sensibilización", "Capacitación básica", "Herramientas específicas", "Casos de uso", "Datos", "Automatización", "Prototipo", "Privacidad y seguridad", "Políticas", "Acompañamiento individual", "Otro"] },
-  { id: "modalidad", numero: "47", texto: "¿Qué modalidad de formación prefiere?", tipo: "select", opciones: ["Presencial", "Virtual", "Híbrida", "En la empresa", "Combinación"] },
-  { id: "participantes", numero: "48", texto: "¿Quiénes deberían participar?", tipo: "multi", opciones: ["Propietarios y directivos", "Administrativos", "Comercial y mercadeo", "Operativos", "Tecnología", "Diferentes áreas", "Otro"] },
-  { id: "presupuestoAcompanamiento", numero: "49", texto: "Presupuesto para un proceso durante el próximo año, en millones de pesos", tipo: "select", opciones: ["No definido", "Menos de 2", "2 a menos de 10", "10 a menos de 30", "30 o más", "No sabe", "Prefiero no responder"] },
+  { id: "otroApoyo", numero: "46.1", texto: "Otro tipo de apoyo, ¿cuál?", tipo: "text", filtro: r => Array.isArray(r.apoyo) && r.apoyo.includes("Otro") },
+  { id: "modalidad", numero: "47", texto: "¿Qué modalidad de formación o acompañamiento prefiere?", tipo: "select", opciones: ["Presencial", "Virtual", "Híbrida", "En la empresa", "Combinación"] },
+  { id: "participantes", numero: "48", texto: "¿Quiénes deberían participar en el proceso?", tipo: "multi", opciones: ["Propietarios y directivos", "Administrativos", "Comercial y mercadeo", "Operativos", "Tecnología", "Diferentes áreas", "Otro"] },
+  { id: "otroParticipante", numero: "48.1", texto: "Otro participante, ¿quién?", tipo: "text", filtro: r => Array.isArray(r.participantes) && r.participantes.includes("Otro") },
+  { id: "presupuestoAcompanamiento", numero: "49", texto: "¿Qué presupuesto prevé destinar su empresa en los próximos 12 meses para los apoyos en IA que indicó necesitar?", tipo: "select", opciones: ["No tiene previsto destinar recursos", "Aún no ha definido el presupuesto", "Menos de 2 millones", "De 2 a menos de 10 millones", "De 10 a menos de 30 millones", "30 millones o más", "No sabe", "Prefiere no responder"] },
   { id: "probabilidad", numero: "50", texto: "Probabilidad de participar en el proceso, de 0 (no participaría) a 10 (participaría)", tipo: "scale", opciones: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"] },
-  { id: "horas", numero: "51", texto: "¿Cuántas horas a la semana podría dedicar la empresa?", tipo: "number" },
-  { id: "responsable", numero: "52", texto: "¿Podría designar una persona responsable?", tipo: "select", opciones: ["Sí", "Probablemente", "No", "No sabe"] },
+  { id: "horas", numero: "51", texto: "¿Cuántas horas a la semana podría dedicar la empresa al proceso de acompañamiento?", tipo: "number" },
+  { id: "responsable", numero: "52", texto: "En caso de ser seleccionada, ¿la empresa podría designar una persona responsable del proceso?", tipo: "select", opciones: ["Sí", "Probablemente", "No", "No sabe"] },
   { id: "direccion", numero: "53", texto: "¿La dirección participaría en la definición y seguimiento?", tipo: "select", opciones: ["Sí", "Parcialmente", "No", "Aún no se ha consultado"] },
-  { id: "informacionImplementacion", numero: "54", texto: "¿Cuenta con información para un ejercicio de implementación?", tipo: "select", opciones: ["Organizada y disponible", "Sí, requiere organización", "Información limitada", "No cuenta", "No sabe"] },
+  { id: "informacionImplementacion", numero: "54", texto: "¿La empresa cuenta con información que pueda utilizarse para desarrollar un ejercicio de implementación?", tipo: "select", opciones: ["Organizada y disponible", "Sí, requiere organización", "Información limitada", "No cuenta", "No sabe"] },
   { id: "visita", numero: "55", texto: "¿Autoriza una visita o entrevista de profundización?", tipo: "select", opciones: ["Sí", "No", "Requiere información adicional"], filtro: r => r.autorizaContacto === "Sí, autorizo" },
   { id: "contactoNombre", numero: "56", texto: "Nombre de la persona responsable", tipo: "text", filtro: r => r.autorizaContacto === "Sí, autorizo" || r.autorizaProveedores === "Sí, autorizo" },
   { id: "contactoCargo", numero: "57", texto: "Cargo", tipo: "text", filtro: r => r.autorizaContacto === "Sí, autorizo" || r.autorizaProveedores === "Sí, autorizo" },
@@ -96,7 +105,15 @@ export default function CuestionarioEmpresas() {
   const progreso = visibles.length ? Math.round(((paso + 1) / visibles.length) * 100) : 0;
 
   function actualizar(id: string, valor: string | string[]) { setRespuestas((actual) => ({ ...actual, [id]: valor })); }
-  function alternar(id: string, opcion: string) { const actual = Array.isArray(respuestas[id]) ? respuestas[id] as string[] : []; actualizar(id, actual.includes(opcion) ? actual.filter((item) => item !== opcion) : [...actual, opcion]); }
+  function alternar(id: string, opcion: string) {
+    const actual = Array.isArray(respuestas[id]) ? respuestas[id] as string[] : [];
+    if (id === "tresProcesos" && !actual.includes(opcion) && actual.length >= 3) {
+      setError("Selecciona máximo tres procesos.");
+      return;
+    }
+    setError("");
+    actualizar(id, actual.includes(opcion) ? actual.filter((item) => item !== opcion) : [...actual, opcion]);
+  }
   function comenzar() {
     if (!aceptaPolitica || respuestas.autorizacionPrincipal !== "si") { setError("Debes leer la política y autorizar el tratamiento estadístico para acceder al cuestionario."); return; }
     setError(""); setInicio(true); setPaso(0);
@@ -110,7 +127,19 @@ export default function CuestionarioEmpresas() {
   }
   async function enviar() {
     if (!respuestas.empresa || !respuestas.usaIA) { setError("Completa los campos obligatorios antes de enviar."); return; }
-    try { const response = await fetch("/api/cuestionario-empresas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ respuestas, autorizaContacto: respuestas.autorizaContacto, autorizaProveedores: respuestas.autorizaProveedores, aceptaPolitica }) }); if (!response.ok) throw new Error(); setEnviado(true); } catch { setError("No pudimos guardar tus respuestas. Verifica tu conexión e inténtalo de nuevo."); }
+    setError("");
+    try {
+      const respuesta = await fetch("/api/cuestionario-empresas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ aceptaPolitica, respuestas }),
+      });
+      const resultado = await respuesta.json();
+      if (!respuesta.ok) throw new Error(resultado.error || "No se pudo guardar el cuestionario.");
+      setEnviado(true);
+    } catch (errorDeEnvio) {
+      setError(errorDeEnvio instanceof Error ? errorDeEnvio.message : "No se pudo guardar el cuestionario.");
+    }
   }
 
   if (enviado) return <main className="min-h-screen bg-expoia-bg"><HeaderSimple /><section className="mx-auto max-w-2xl px-5 py-24 text-center"><p className="font-display text-sm tracking-[0.2em] text-expoia-cyan">RESPUESTA RECIBIDA</p><h1 className="mt-4 font-display text-4xl font-semibold text-expoia-navy">Gracias por fortalecer el futuro empresarial del Huila.</h1><p className="mt-5 text-expoia-gray-dark">Tus respuestas fueron registradas para el análisis agregado y las acciones de acompañamiento.</p></section></main>;

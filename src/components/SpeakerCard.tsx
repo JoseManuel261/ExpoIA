@@ -36,7 +36,7 @@ export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
       onClick={() => setVolteada((v) => !v)}
       aria-pressed={volteada}
       aria-label={`${speaker.nombre}, ${speaker.cargo} en ${speaker.empresa}. Toca para ver su descripción.`}
-      className="block aspect-[3/4] w-full cursor-pointer text-left [perspective:1200px]"
+      className="block aspect-[3/5] w-full cursor-pointer text-left [perspective:1200px] sm:aspect-[3/4]"
     >
       <div
         className={`relative h-full w-full transition-transform duration-700 ease-in-out [transform-style:preserve-3d] ${
@@ -68,13 +68,18 @@ export default function SpeakerCard({ speaker }: { speaker: Speaker }) {
         </div>
 
         {/* --- Reverso: descripción + logo de la empresa abajo --- */}
-        <div className="absolute inset-0 flex flex-col justify-between overflow-hidden rounded-2xl border border-expoia-border bg-expoia-navy p-5 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        <div className="absolute inset-0 flex flex-col justify-between overflow-y-auto rounded-2xl border border-expoia-border bg-expoia-navy p-4 [backface-visibility:hidden] [transform:rotateY(180deg)] sm:p-5">
           <div>
             <h3 className="font-display text-base font-semibold text-white">{speaker.nombre}</h3>
             <p className="mt-1 text-xs font-medium uppercase tracking-wide text-expoia-cyan">
               {speaker.cargo}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-white/80">{speaker.descripcion}</p>
+            {speaker.ponencia && (
+              <p className="mt-4 border-t border-white/15 pt-3 text-xs font-medium leading-relaxed text-white/90">
+                {speaker.ponencia}
+              </p>
+            )}
           </div>
 
           {/* Logo de la empresa en la esquina inferior. Si todavía no hay

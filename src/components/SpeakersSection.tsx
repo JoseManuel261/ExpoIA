@@ -6,6 +6,7 @@ export interface Speaker {
   cargo: string;
   empresa: string;
   descripcion: string;
+  ponencia?: string;
   // Rutas dentro de /public. Opcionales: mientras no haya foto/logo reales,
   // la tarjeta usa un placeholder con las iniciales del nombre.
   foto?: string;
@@ -18,11 +19,13 @@ export interface Speaker {
 // "logoEmpresa" apuntando a un archivo en /public (ej: "/speakers/nombre.jpg").
 export const SPEAKERS: Speaker[] = [
   {
-    nombre: "María Fernanda Rojas",
-    cargo: "Directora de Innovación",
+    nombre: "Álvaro",
+    cargo: "Director de Desarrollo Institucional",
     empresa: "Comfamiliar Huila",
     descripcion:
-      "Lidera proyectos de transformación digital en el sector servicios del Huila desde hace más de 8 años.",
+      "Ingeniero con MBA en Gerencia de Proyectos. Lidera proyectos de transformación digital, automatización y analítica de datos en Comfamiliar Huila.",
+    ponencia: "IA sin miedo y sin millones: cómo empezar a automatizar mañana",
+    foto: "/speakers/Alvaro.jpeg",
   },
   {
     nombre: "Camilo Andrés Perdomo",

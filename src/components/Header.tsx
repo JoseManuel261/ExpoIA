@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const cuestionarioUrl = process.env.NEXT_PUBLIC_CUESTIONARIO_URL || "/cuestionario-empresas-huila";
+const cuestionarioUrl = process.env.NEXT_PUBLIC_CUESTIONARIO_URL || "https://formulario.expoia.com.co";
 
 export default function Header() {
   return (

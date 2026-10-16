@@ -9,6 +9,7 @@ create table if not exists registros_interes (
   principal_reto text not null,
   resultado_porcentaje integer,
   resultado_etiqueta text,
+  autoriza_datos boolean not null default false,
   created_at timestamptz not null default now()
 );
 
