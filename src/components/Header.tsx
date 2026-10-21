@@ -24,7 +24,7 @@ export default function Header() {
 
         <div className="flex items-center justify-end gap-4">
           <p className="hidden text-right text-sm leading-tight text-expoia-navy lg:block">
-            <span className="block font-semibold">17 Noviembre 2026</span>
+            <span className="block font-semibold">20 y 21 de Noviembre 2026</span>
             <span className="block text-expoia-gray-dark">Neiva - Huila, Colombia</span>
           </p>
 

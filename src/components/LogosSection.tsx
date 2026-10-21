@@ -6,6 +6,7 @@ const ALIADOS = [
   { src: "/logos/fet.png", alt: "Fundación Escuela Tecnológica de Neiva", featured: true },
   { src: "/logos/universidad-ean.jpeg", alt: "Universidad EAN" },
   { src: "/logos/comfamiliar-huila.jpeg", alt: "Comfamiliar Huila" },
+  { src: "/logos/sunnyapp.jpeg", alt: "Sunnyapp" },
 ];
 
 export default function LogosSection() {

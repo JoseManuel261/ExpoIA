@@ -14,7 +14,7 @@
     "@react-three/postprocessing": "^3.1.1",
     "@supabase/supabase-js": "^2.116.0",
     "framer-motion": "^13.2.0",
-    "next": "16.3.4",
+    "next": "^16.4.2",
     "postprocessing": "^6.39.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -26,7 +26,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "^16.4.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
