@@ -8,7 +8,6 @@ import RegistroForm from "@/components/RegistroForm";
 import LogosSection from "@/components/LogosSection";
 import PasosSection from "@/components/PasosSection";
 import SectoresSection from "@/components/SectoresSection";
-import SpeakersSection from "@/components/SpeakersSection";
 import AgendaSection from "@/components/AgendaSection";
 import FaqSection from "@/components/FaqSection";
 import Footer from "@/components/Footer";
@@ -63,9 +62,8 @@ export default function Home() {
               Cuéntanos qué quieres transformar.
             </h2>
             <p className="mt-4 max-w-[42ch] text-expoia-gray-dark">
-              Cuando el registro oficial esté habilitado, tu inscripción
-              quedará lista y podrás solicitar conexiones directas con
-              soluciones de IA para tu sector.
+              Registra tu interés en participar y encontrar conexiones directas
+              con soluciones de IA para tu sector en EXPOIA 2026.
             </p>
           </div>
           <RegistroForm resultadoTest={resultadoTest} />
@@ -76,7 +74,6 @@ export default function Home() {
       <LogosSection />
       <PasosSection />
       <SectoresSection />
-      <SpeakersSection />
       <div id="agenda">
         <AgendaSection />
       </div>

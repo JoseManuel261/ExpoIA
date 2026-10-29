@@ -24,13 +24,10 @@ const preguntas: Pregunta[] = [
   { id: "actividad", numero: "8", texto: "Actividad, producto o servicio principal", tipo: "text" },
   { id: "tamano", numero: "9", texto: "¿Cuántas personas trabajan actualmente en la empresa?", tipo: "select", opciones: ["Micro: hasta 10", "Pequeña: 11 a 50", "Mediana: 51 a 200", "Grande: más de 200"] },
   { id: "antiguedad", numero: "10", texto: "¿En qué rango inició operaciones la empresa?", tipo: "select", opciones: ["Menos de 1 año", "Entre 1 y 3 años", "Entre 4 y 7 años", "Entre 8 y 15 años", "Más de 15 años"] },
-  { id: "organizacion", numero: "11", texto: "Forma de organización de la empresa", tipo: "select", opciones: ["Persona natural", "SAS", "Otra persona jurídica", "Organización asociativa, cooperativa o solidaria", "Emprendimiento no formalizado", "Otra"] },
-  { id: "otraOrganizacion", numero: "11.1", texto: "Otra forma de organización, ¿cuál?", tipo: "text", filtro: r => r.organizacion === "Otra" },
   { id: "genero", numero: "12", texto: "¿La persona propietaria o gerente es hombre o mujer?", tipo: "select", opciones: ["Hombre", "Mujer", "Otro", "Prefiere no responder"] },
-  { id: "ventas", numero: "13", texto: "¿La empresa vende fuera del departamento o exporta?", tipo: "select", opciones: ["Solo en el Huila", "También en otros departamentos", "Exporta"] },
+  { id: "ventas", numero: "13", texto: "¿La empresa vende fuera del departamento o exporta?", tipo: "multi", opciones: ["Solo en el Huila", "También en otros departamentos", "Exporta"] },
   { id: "cargo", numero: "14", texto: "Cargo de la persona que diligencia la encuesta", tipo: "select", opciones: ["Propietario o gerente", "Administrador", "Responsable de tecnología", "Responsable de mercadeo o ventas", "Responsable de producción", "Trabajador o colaborador", "Otro"] },
   { id: "otroCargo", numero: "14.1", texto: "Otro cargo, ¿cuál?", tipo: "text", filtro: r => r.cargo === "Otro" },
-  { id: "ingresos", numero: "15", texto: "Ingresos operacionales del último año cerrado, en millones de pesos", tipo: "select", opciones: ["Menos de 30", "30 a 120", "121 a 500", "501 a 1.500", "Más de 1.500", "Prefiero no responder", "No sabe"] },
   { id: "recursos", numero: "16", texto: "Indique si la empresa utiliza actualmente cada recurso", tipo: "matrix", filas: ["Computador", "Teléfono inteligente empresarial", "Internet permanente", "Página web", "Redes sociales empresariales", "Comercio electrónico", "Software contable", "Facturación electrónica", "CRM", "Almacenamiento en la nube", "Software de inventarios", "Sistemas de análisis de datos"], opciones: siNo },
   { id: "organizacionInfo", numero: "17", texto: "¿Cómo califica la organización y disponibilidad de la información?", tipo: "select", opciones: ["Principalmente física", "Archivos digitales dispersos", "Digitalizada y parcialmente organizada", "Organizada en sistemas", "Integrada para análisis y decisiones"] },
   { id: "responsableTecnologia", numero: "18", texto: "¿Cuenta con una persona o proveedor responsable de tecnología?", tipo: "select", opciones: ["Personal interno", "Proveedor externo", "Una persona con otras funciones", "No cuenta", "No sabe"] },
@@ -120,7 +117,11 @@ export default function CuestionarioEmpresas() {
   }
   function continuar() {
     const valor = respuestas[pregunta.id];
-    if (!valor || (Array.isArray(valor) && valor.length === 0)) { setError("Selecciona o escribe una respuesta para continuar."); return; }
+    const matrizIncompleta = pregunta.id === "recursos" && pregunta.filas?.some((fila) => !Array.isArray(valor) || !valor.some((respuesta) => respuesta.startsWith(`${fila}:`)));
+    if (!valor || (Array.isArray(valor) && valor.length === 0) || matrizIncompleta) {
+      setError(matrizIncompleta ? "Responde todas las filas para continuar." : "Selecciona o escribe una respuesta para continuar.");
+      return;
+    }
     setError("");
     if (paso < visibles.length - 1) { setPaso((actual) => actual + 1); return; }
     void enviar();

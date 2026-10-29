@@ -19,9 +19,7 @@ create table if not exists registros_interes (
 -- por defecto (ninguna policy de acceso público).
 alter table registros_interes enable row level security;
 
--- Formulario COMPLETO de inscripción (botón "Otros" en la sección de
--- Registro), con las mismas 10 preguntas del formulario oficial de
--- Google Forms usado para la inscripción de asistentes.
+-- Formulario actual de inscripción de asistentes.
 create table if not exists registros_completos (
   id uuid primary key default gen_random_uuid(),
   correo text not null,
@@ -29,18 +27,31 @@ create table if not exists registros_completos (
   telefono text not null,
   tipo_vinculacion text not null,
   tipo_vinculacion_otro text,
-  pais text not null,
+  pais text not null default 'Colombia',
   pais_otro text,
   ciudad text not null,
   institucion text,
   programa_o_sector text,
   expectativas text[] not null default '{}',
   expectativas_otro text,
+  rueda_negocios boolean not null default false,
+  resultado_porcentaje integer,
+  resultado_etiqueta text,
   autoriza_datos boolean not null,
   created_at timestamptz not null default now()
 );
 
 alter table registros_completos enable row level security;
+
+-- Migración para proyectos que ya tenían creada la tabla.
+alter table registros_completos
+  add column if not exists rueda_negocios boolean not null default false;
+
+alter table registros_completos
+  add column if not exists resultado_porcentaje integer;
+
+alter table registros_completos
+  add column if not exists resultado_etiqueta text;
 
 -- Respuestas del cuestionario de adopción de IA en empresas del Huila.
 -- Las respuestas se conservan como JSON para no perder la estructura de

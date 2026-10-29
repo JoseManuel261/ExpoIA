@@ -17,10 +17,21 @@ export async function POST(request: NextRequest) {
     programaOSector,
     expectativas,
     expectativasOtro,
+    ruedaNegocios,
+    resultadoPorcentaje,
+    resultadoEtiqueta,
     autorizaDatos,
   } = datos;
 
-  if (!correo || !nombre || !telefono || !tipoVinculacion || !pais || !ciudad || !autorizaDatos) {
+  if (
+    !correo ||
+    !nombre ||
+    !telefono ||
+    !tipoVinculacion ||
+    !ciudad ||
+    !ruedaNegocios ||
+    !autorizaDatos
+  ) {
     return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 });
   }
 
@@ -31,13 +42,16 @@ export async function POST(request: NextRequest) {
     telefono,
     tipo_vinculacion: tipoVinculacion,
     tipo_vinculacion_otro: tipoVinculacionOtro || null,
-    pais,
+    pais: pais || "Colombia",
     pais_otro: paisOtro || null,
     ciudad,
     institucion: institucion || null,
     programa_o_sector: programaOSector || null,
     expectativas: Array.isArray(expectativas) ? expectativas : [],
     expectativas_otro: expectativasOtro || null,
+    rueda_negocios: ruedaNegocios === "Sí",
+    resultado_porcentaje: resultadoPorcentaje ?? null,
+    resultado_etiqueta: resultadoEtiqueta || null,
     autoriza_datos: autorizaDatos,
   });
 
