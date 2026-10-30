@@ -3,10 +3,11 @@ import Image from "next/image";
 const ALIADOS = [
   { src: "/logos/gobernacion-huila.png", alt: "Gobernación del Huila" },
   { src: "/logos/camara-comercio-huila.jpeg", alt: "Cámara de Comercio del Huila" },
-  { src: "/logos/fet.png", alt: "Fundación Escuela Tecnológica de Neiva", featured: true },
   { src: "/logos/universidad-ean.jpeg", alt: "Universidad EAN" },
+  { src: "/logos/fet.png", alt: "Fundación Escuela Tecnológica de Neiva", featured: true },
   { src: "/logos/comfamiliar-huila.jpeg", alt: "Comfamiliar Huila" },
-  { src: "/logos/sunnyapp.jpeg", alt: "Sunnyapp" },
+  { src: "/logos/sunnyapp.jpeg", alt: "Sunnyapp", large: true },
+  { src: "/logos/Robokids.jpeg", alt: "Robokids", large: true },
 ];
 
 export default function LogosSection() {
@@ -25,7 +26,11 @@ export default function LogosSection() {
               width={160}
               height={60}
               className={`w-auto object-contain ${
-                aliado.featured ? "h-12 sm:h-14 md:h-16" : "h-8 sm:h-10 md:h-12"
+                aliado.featured
+                  ? "h-12 sm:h-14 md:h-16"
+                  : aliado.large
+                    ? "h-12 sm:h-14 md:h-16"
+                    : "h-8 sm:h-10 md:h-12"
               }`}
             />
           ))}
