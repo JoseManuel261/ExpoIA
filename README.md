@@ -16,6 +16,20 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Panel administrativo
+
+El panel privado está disponible en `/admin` y consulta únicamente las tablas
+`registros_interes` y `cuestionarios_empresas_huila`. Para habilitar el acceso,
+agrega una contraseña fuerte al entorno del servidor:
+
+```env
+ADMIN_PANEL_PASSWORD=una-contraseña-segura
+```
+
+Los datos se consultan desde el servidor con la Service Role Key y el panel se
+actualiza automáticamente cada ocho segundos. La contraseña y las claves de
+Supabase no deben exponerse en variables `NEXT_PUBLIC_*`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
